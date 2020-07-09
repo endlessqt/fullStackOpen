@@ -7,5 +7,5 @@
 .env
 /part3/stud
 
-/part1
-/part2
+./part1
+./part2
