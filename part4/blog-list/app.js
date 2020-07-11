@@ -4,19 +4,11 @@ const logger = require("./utils/logger");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
-const dataToken = require("./utils/middleware");
+const middleware = require("./utils/middleware");
+const { MONGO_URI } = require("./utils/config");
+const blogsRouter = require("./controllers/blogs");
 
-const { MONGO_URI, PORT } = require("./utils/config");
-
-const blogSchema = mongoose.Schema({
-  title: String,
-  author: String,
-  url: String,
-  likes: Number,
-});
-
-const Blog = mongoose.model("Blog", blogSchema);
-
+logger.info(`connecting to mongoDB`);
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -24,26 +16,13 @@ mongoose.connect(MONGO_URI, {
 
 app.use(cors());
 app.use(express.json());
-
-morgan.token(dataToken);
+morgan.token(middleware.dataToken);
 app.use(
   morgan(`:method :url :status :res[content-length] — :response-time ms :data`)
 );
+app.use("/api/blogs", blogsRouter);
 
-app.get("/api/blogs", (req, res) => {
-  Blog.find({}).then((blogs) => {
-    res.json(blogs);
-  });
-});
+app.use(middleware.unknownEndpoint);
+app.use(middleware.errorHandler);
 
-app.post("/api/blogs", (req, res) => {
-  const blog = new Blog(req.body);
-
-  blog.save().then((result) => {
-    res.status(201).json(result);
-  });
-});
-
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
+module.exports = app;

@@ -19,8 +19,6 @@ const dataToken = morgan.token("data", (req, res) => {
   return JSON.stringify(req.body);
 });
 
-
-
 module.exports = {
   errorHandler,
   unknownEndpoint,
