@@ -81,11 +81,22 @@ describe("testing post request", () => {
     });
     await api.post("/api/blogs").send(newBlog);
     const blogsAfterPost = await helper.blogsInDb();
-    const blog = blogsAfterPost.find(
-      (obj) => obj.author === "Robert C. Martin"
-    );
+    const blog = blogsAfterPost.find((obj) => obj.author === newBlog.author);
     // we dont need to check if blog.author is defined because we used find method and it returns blog by authors name so its 100% not undefined;
     expect([blog.id, blog.title, blog.url, blog.likes]).toBeDefined();
+  });
+  test.only("posted blog should contain likes property and its value should be 0 or greated", async () => {
+    const newBlog = new Blog({
+      title: "First class tests",
+      author: "Robert C. Martin",
+      url:
+        "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
+    });
+    await api.post("/api/blogs").send(newBlog);
+    const blogsAfterPost = await helper.blogsInDb();
+    const blog = blogsAfterPost.find((obj) => obj.url === newBlog.url);
+    expect(blog.likes).toBeDefined();
+    expect(blog.likes).toBeGreaterThanOrEqual(0);
   });
 });
 

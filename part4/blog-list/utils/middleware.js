@@ -7,6 +7,8 @@ const errorHandler = (err, req, res, next) => {
     return res.status(400).send({ error: "wrong id format" });
   } else if (err.name === "ValidationError") {
     return res.status(400).json({ error: err.message });
+  } else if (err.message === "likes must be positive integer or zero") {
+    return res.status(400).json({ error: err.message });
   }
   next(err);
 };

@@ -6,10 +6,19 @@ blogsRouter.get("/", async (req, res) => {
   res.json(blogs);
 });
 
-blogsRouter.post("/", async (req, res) => {
+blogsRouter.post("/", async (req, res, next) => {
   const blog = new Blog(req.body);
-  const savedBlog = await blog.save();
-  res.status(201).json(savedBlog);
+  try {
+    if (blog.likes < 0) {
+      throw new Error("likes must be positive integer or zero")
+    }
+    const savedBlog = await blog.save();
+    res.status(201).json(savedBlog);
+  } catch (error) {
+    next(error)
+  }
+  
+
 });
 
 module.exports = blogsRouter;
