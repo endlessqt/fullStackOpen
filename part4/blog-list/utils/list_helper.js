@@ -65,7 +65,6 @@ const mostLikes = (arr) => {
     }
     return total;
   }, {});
-  console.log(sortedByLikes);
   let likes = 0;
   let authorWithMaxLikes;
   for (let author in sortedByLikes) {
