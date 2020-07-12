@@ -85,7 +85,7 @@ describe("testing post request", () => {
     // we dont need to check if blog.author is defined because we used find method and it returns blog by authors name so its 100% not undefined;
     expect([blog.id, blog.title, blog.url, blog.likes]).toBeDefined();
   });
-  test.only("posted blog should contain likes property and its value should be 0 or greated", async () => {
+  test("posted blog should contain likes property and its value should be 0 or greated", async () => {
     const newBlog = new Blog({
       title: "First class tests",
       author: "Robert C. Martin",
@@ -97,6 +97,21 @@ describe("testing post request", () => {
     const blog = blogsAfterPost.find((obj) => obj.url === newBlog.url);
     expect(blog.likes).toBeDefined();
     expect(blog.likes).toBeGreaterThanOrEqual(0);
+  });
+  test("post request should be rejected with 400 error if there are no title in req", async () => {
+    const newBlog = new Blog({
+      author: "Robert C. Martin",
+      url:
+        "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
+    });
+    await api.post("/api/blogs").send(newBlog).expect(400);
+  });
+  test("post request should be rejected with 400 error code if there are no url in req", async () => {
+    const newBlog = new Blog({
+      title: "First class tests",
+      author: "Robert C. Martin",
+    });
+    await api.post("/api/blogs").send(newBlog).expect(400);
   });
 });
 
