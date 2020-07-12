@@ -22,7 +22,7 @@ const api = supertest(app); // initialise api;
 describe("testing get request", () => {
   test("get request should return array of blogs with length equals to length of blogs in db", async () => {
     const res = await api.get("/api/blogs");
-    expect(res.body).toHaveLength(2);
+    expect(res.body).toHaveLength(helper.initialBlogs.length);
   });
   test("get request should return in json format with correct respond status", async () => {
     await api
@@ -32,16 +32,62 @@ describe("testing get request", () => {
   });
   test("get request should return array of blogs with correct blog name", async () => {
     const res = await api.get("/api/blogs");
-    const authors = res.body.map((blog) => blog.title);
-    expect(authors).toContainEqual("Go To Statement Considered Harmful");
+    const titles = res.body.map((blog) => blog.title);
+    expect(titles).toContainEqual("Go To Statement Considered Harmful");
   });
   test("unique identifier should be named id", async () => {
     const res = await api.get("/api/blogs");
     const firstBlog = res.body[0];
     expect(firstBlog.id).toBeDefined();
-  })
+  });
 });
 
+describe("testing post request", () => {
+  test("post request respond with correct content type and code", async () => {
+    const newBlog = new Blog({
+      title: "First class tests",
+      author: "Robert C. Martin",
+      url:
+        "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
+      likes: 10,
+    });
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
+  });
+  test("post request adding new blog to the db and containing right author", async () => {
+    const newBlog = new Blog({
+      title: "First class tests",
+      author: "Robert C. Martin",
+      url:
+        "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
+      likes: 10,
+    });
+    await api.post("/api/blogs").send(newBlog);
+    const blogsAfterPost = await helper.blogsInDb();
+    const authors = blogsAfterPost.map((blogs) => blogs.author);
+    expect(blogsAfterPost).toHaveLength(helper.initialBlogs.length + 1);
+    expect(authors).toContain("Robert C. Martin");
+  });
+  test("posted blog should contain correct properties", async () => {
+    const newBlog = new Blog({
+      title: "First class tests",
+      author: "Robert C. Martin",
+      url:
+        "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
+      likes: 10,
+    });
+    await api.post("/api/blogs").send(newBlog);
+    const blogsAfterPost = await helper.blogsInDb();
+    const blog = blogsAfterPost.find(
+      (obj) => obj.author === "Robert C. Martin"
+    );
+    // we dont need to check if blog.author is defined because we used find method and it returns blog by authors name so its 100% not undefined;
+    expect([blog.id, blog.title, blog.url, blog.likes]).toBeDefined();
+  });
+});
 
 //close connection after all tests
 afterAll(() => {
