@@ -7,7 +7,7 @@ const morgan = require("morgan");
 const middleware = require("./utils/middleware");
 const { MONGO_URI } = require("./utils/config");
 const blogsRouter = require("./controllers/blogs");
-
+mongoose.set("useFindAndModify", false);
 logger.info(`connecting to mongoDB`);
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
