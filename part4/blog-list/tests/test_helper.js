@@ -15,6 +15,18 @@ const initialBlogs = [
     likes: 5,
   },
 ];
+const notExistingId = async () => {
+  const newBlog = new Blog({
+    title: "TDD harms architecture",
+    author: "Robert C. Martin",
+    url:
+      "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
+    likes: 0,
+  });
+  await newBlog.save();
+  await newBlog.remove();
+  return newBlog._id.toString();
+};
 
 const blogsInDb = async () => {
   const res = await Blog.find({});
@@ -24,4 +36,5 @@ const blogsInDb = async () => {
 module.exports = {
   initialBlogs,
   blogsInDb,
+  notExistingId,
 };
