@@ -1,4 +1,3 @@
-
 const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
 
@@ -24,7 +23,6 @@ blogsRouter.get("/:id", async (req, res, next) => {
     res.status(404).end();
   } else {
     res.json(blog);
-    n;
   }
 });
 
