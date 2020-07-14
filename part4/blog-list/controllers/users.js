@@ -8,6 +8,9 @@ usersRouter.get("/", async (req, res) => {
 });
 
 usersRouter.post("/", async (req, res) => {
+  if (req.body.password === undefined || req.body.password.length < 3) {
+    throw new Error("password's length must be at least 3 characters");
+  }
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
 
@@ -17,7 +20,7 @@ usersRouter.post("/", async (req, res) => {
     passwordHash: hashedPassword,
   });
   const savedUser = await newUser.save();
-  res.json(savedUser);
+  res.status(201).json(savedUser);
 });
 
 module.exports = usersRouter;

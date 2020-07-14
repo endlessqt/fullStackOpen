@@ -9,6 +9,8 @@ const errorHandler = (err, req, res, next) => {
     return res.status(400).json({ error: err.message });
   } else if (err.message === "likes must be positive integer or zero") {
     return res.status(400).json({ error: err.message });
+  } else if (err.message === "password's length must be at least 3 characters") {
+    return res.status(400).json({ error: err.message });
   }
   next(err);
 };
