@@ -8,7 +8,9 @@ const morgan = require("morgan");
 const middleware = require("./utils/middleware");
 const { MONGO_URI } = require("./utils/config");
 const blogsRouter = require("./controllers/blogs");
+const usersRouter = require("./controllers/users");
 mongoose.set("useFindAndModify", false);
+mongoose.set("useCreateIndex", true);
 logger.info(`connecting to mongoDB`);
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
@@ -17,12 +19,12 @@ mongoose.connect(MONGO_URI, {
 
 app.use(cors());
 app.use(express.json());
-morgan.token(middleware.dataToken);
+
 app.use(
-  morgan(`:method :url :status :res[content-length] — :response-time ms :data`)
+  morgan(`:method :url :status :res[content-length] — :response-time ms`)
 );
 app.use("/api/blogs", blogsRouter);
-
+app.use("/api/users", usersRouter);
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 
