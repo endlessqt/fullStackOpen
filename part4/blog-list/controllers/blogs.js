@@ -1,14 +1,29 @@
 const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user");
-
+const jwt = require("jsonwebtoken");
 blogsRouter.get("/", async (req, res) => {
-  const blogs = await Blog.find({}).populate("user", {username: 1, name: 1});
+  const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
   res.json(blogs);
 });
+const getTokenFrom = (req) => {
+  const authorization = req.headers.authorization;
+  if (authorization && authorization.toLowerCase().startsWith("bearer")) {
+    return authorization.substring(7);
+  }
+  return null;
+};
 
-blogsRouter.post("/", async (req, res, next) => {
-  const user = await User.findById(req.body.userId);
+blogsRouter.post("/", async (req, res) => {
+  const token = getTokenFrom(req);
+
+  try {
+    var decodedToken = jwt.verify(token, process.env.SECRET);
+  } catch (err) {
+    return res.status(401).json(err);
+  }
+
+  const user = await User.findById(decodedToken.id);
 
   const blog = new Blog({
     title: req.body.title,
@@ -18,7 +33,9 @@ blogsRouter.post("/", async (req, res, next) => {
     user: user._id,
   });
   if (blog.likes < 0) {
-    throw new Error("likes must be positive integer or zero");
+    return res
+      .status(400)
+      .json({ error: "likes must be positive integer or zero" });
   }
 
   const savedBlog = await blog.save();
@@ -26,7 +43,7 @@ blogsRouter.post("/", async (req, res, next) => {
   await user.save();
   res.status(201).json(savedBlog);
 });
-blogsRouter.get("/:id", async (req, res, next) => {
+blogsRouter.get("/:id", async (req, res) => {
   const id = req.params.id;
 
   const blog = await Blog.findById(id);

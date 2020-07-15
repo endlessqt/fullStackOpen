@@ -9,6 +9,7 @@ const middleware = require("./utils/middleware");
 const { MONGO_URI } = require("./utils/config");
 const blogsRouter = require("./controllers/blogs");
 const usersRouter = require("./controllers/users");
+const loginRouter = require("./controllers/login");
 mongoose.set("useFindAndModify", false);
 mongoose.set("useCreateIndex", true);
 logger.info(`connecting to mongoDB`);
@@ -25,6 +26,7 @@ app.use(
 );
 app.use("/api/blogs", blogsRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/login", loginRouter);
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 
