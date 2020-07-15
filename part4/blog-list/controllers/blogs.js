@@ -46,7 +46,6 @@ blogsRouter.get("/:id", async (req, res) => {
 
 blogsRouter.delete("/:id", async (req, res) => {
   try {
-    //верификация токена
     const decodedToken = jwt.verify(req.token, process.env.SECRET);
     const userId = decodedToken.id;
 
@@ -56,6 +55,8 @@ blogsRouter.delete("/:id", async (req, res) => {
     if (userId.toString() === blog.user.toString()) {
       await Blog.findByIdAndRemove(id);
       res.status(204).end();
+    } else {
+      res.status(403).json({ error: "u have no permission to delete" });
     }
   } catch (err) {
     res.status(401).json(err);
