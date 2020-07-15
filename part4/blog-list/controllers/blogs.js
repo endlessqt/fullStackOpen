@@ -36,7 +36,6 @@ blogsRouter.post("/", async (req, res) => {
 });
 blogsRouter.get("/:id", async (req, res) => {
   const id = req.params.id;
-
   const blog = await Blog.findById(id);
   if (!blog) {
     res.status(404).end();
@@ -45,14 +44,25 @@ blogsRouter.get("/:id", async (req, res) => {
   }
 });
 
-blogsRouter.delete("/:id", async (req, res, next) => {
-  const id = req.params.id;
+blogsRouter.delete("/:id", async (req, res) => {
+  try {
+    //верификация токена
+    const decodedToken = jwt.verify(req.token, process.env.SECRET);
+    const userId = decodedToken.id;
 
-  await Blog.findByIdAndRemove(id);
-  res.status(204).end();
+    const id = req.params.id;
+
+    const blog = await Blog.findById(id);
+    if (userId.toString() === blog.user.toString()) {
+      await Blog.findByIdAndRemove(id);
+      res.status(204).end();
+    }
+  } catch (err) {
+    res.status(401).json(err);
+  }
 });
 
-blogsRouter.put("/:id", async (req, res, next) => {
+blogsRouter.put("/:id", async (req, res) => {
   const id = req.params.id;
 
   const blog = await Blog.findById(id);
