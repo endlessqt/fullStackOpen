@@ -6,19 +6,10 @@ blogsRouter.get("/", async (req, res) => {
   const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
   res.json(blogs);
 });
-const getTokenFrom = (req) => {
-  const authorization = req.headers.authorization;
-  if (authorization && authorization.toLowerCase().startsWith("bearer")) {
-    return authorization.substring(7);
-  }
-  return null;
-};
 
 blogsRouter.post("/", async (req, res) => {
-  const token = getTokenFrom(req);
-
   try {
-    var decodedToken = jwt.verify(token, process.env.SECRET);
+    var decodedToken = jwt.verify(req.token, process.env.SECRET);
   } catch (err) {
     return res.status(401).json(err);
   }
