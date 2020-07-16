@@ -97,7 +97,7 @@ describe("testing post req", () => {
     expect(usersAtEnd).toHaveLength(usersAtStart.length);
   });
 });
-//TODO username length 3 and req
+
 afterAll(() => {
   mongoose.connection.close();
 });
