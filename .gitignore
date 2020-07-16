@@ -2,7 +2,7 @@
 /node_modules
 /.pnp
 .pnp.js
-.gitignore
+
 /requests
 .env
 /part3/stud
