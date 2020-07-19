@@ -1,4 +1,5 @@
 import React, { useState, useImperativeHandle } from "react";
+import PropTypes from "prop-types";
 
 const ToggableDiv = React.forwardRef((props, ref) => {
   const [visible, setVisible] = useState(false);
@@ -26,5 +27,9 @@ const ToggableDiv = React.forwardRef((props, ref) => {
     </div>
   );
 });
-
+ToggableDiv.displayName = "Toggable";
+ToggableDiv.propTypes = {
+  btnText: PropTypes.string.isRequired,
+  children: PropTypes.object,
+};
 export default ToggableDiv;

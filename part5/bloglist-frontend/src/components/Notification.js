@@ -1,6 +1,7 @@
 import React from "react";
+import PropTypes from "prop-types";
 
-const Notification = ({notification}) => {
+const Notification = ({ notification }) => {
   const errorStyle = {
     color: "red",
     fontSize: 30,
@@ -22,15 +23,15 @@ const Notification = ({notification}) => {
     marginBottom: 5,
   };
   if (notification === null) {
-      return null;
+    return null;
   }
   return (
-    <div
-      style={notification.type === "error" ? errorStyle : completedStyle}
-    >
+    <div style={notification.type === "error" ? errorStyle : completedStyle}>
       {notification.message}
     </div>
   );
 };
-
+Notification.propTypes = {
+  notification: PropTypes.object,
+};
 export default Notification;
