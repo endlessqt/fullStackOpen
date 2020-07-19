@@ -1,22 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Blog from "./components/Blog";
 import Notification from "./components/Notification";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
+import ToggableDiv from "./components/ToggableDiv";
+import BlogForm from "./components/BlogForm";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
-  const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
-  const [author, setAuthor] = useState("");
   const [notification, setNotification] = useState(null);
-
+  blogs.sort((a, b) => b.likes - a.likes);
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
+  }, [blogs.length]);
 
   useEffect(() => {
     const userJSON = window.localStorage.getItem("userLoggedInBlogsApp");
@@ -46,15 +45,12 @@ const App = () => {
     window.localStorage.removeItem("userLoggedInBlogsApp");
     setUser(null);
   };
-  const addNewBlog = async (event) => {
-    event.preventDefault();
+  const addNewBlog = async (blogObject) => {
     try {
+      blogFormRef.current.handleVisibility();
       blogService.setToken(user.token);
-      const newBlog = await blogService.create({ title, url, author });
+      const newBlog = await blogService.create(blogObject);
       setBlogs(blogs.concat(newBlog));
-      setAuthor("");
-      setTitle("");
-      setUrl("");
       setNotification({
         type: "ok",
         message: `New blog: ${newBlog.title} by ${newBlog.author} added to blog list`,
@@ -69,6 +65,64 @@ const App = () => {
       }, 5000);
     }
   };
+  const updateLikes = async (id) => {
+    try {
+      const blog = blogs.find((blog) => blog.id === id);
+      const newBlog = {
+        ...blog,
+        user: blog.user.id,
+        likes: blog.likes + 1,
+      };
+
+      const res = await blogService.update(id, newBlog);
+
+      setBlogs(
+        blogs.map((blog) =>
+          blog.id === id ? { ...res, user: blog.user } : blog
+        )
+      );
+    } catch (error) {
+      setBlogs(blogs.filter((blog) => blog.id !== id));
+      setNotification({
+        type: "error",
+        message: "Blog was deleted",
+      });
+      setTimeout(() => {
+        setNotification(null);
+      }, 10000);
+    }
+  };
+  const deletePost = async (id) => {
+    try {
+      blogService.setToken(user.token);
+      const blog = blogs.find((blog) => id === blog.id);
+      if (
+        window.confirm(
+          `Do you really wish to delete ${blog.title} by ${blog.author}`
+        )
+      ) {
+        await blogService.del(blog.id);
+        setBlogs(blogs.filter((blog) => blog.id !== id));
+        setNotification({
+          type: "ok",
+          message: `Blog ${blog.title} by ${blog.author} deleted from the server`,
+        });
+        setTimeout(() => {
+          setNotification(null);
+        }, 5000);
+      }
+    } catch (error) {
+      setNotification({
+        type: "error",
+        message: error.response.data.error,
+      });
+      setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+    }
+  };
+
+  const blogFormRef = useRef();
   if (user === null) {
     return (
       <div>
@@ -98,6 +152,7 @@ const App = () => {
       </div>
     );
   }
+
   return (
     <div>
       <h2>blogs</h2>
@@ -106,43 +161,17 @@ const App = () => {
         {user.username} logged in
         <button onClick={handleLogout}>logout</button>
       </div>
-      <h2>Add new blog</h2>
-      <div>
-        <form onSubmit={addNewBlog}>
-          <div>
-            title
-            <input
-              type="text"
-              value={title}
-              name="title"
-              onChange={({ target }) => setTitle(target.value)}
-            />
-          </div>
-          <div>
-            author
-            <input
-              type="text"
-              value={author}
-              name="title"
-              onChange={({ target }) => setAuthor(target.value)}
-            />
-          </div>
-          <div>
-            url
-            <input
-              type="text"
-              value={url}
-              name="title"
-              onChange={({ target }) => setUrl(target.value)}
-            />
-          </div>
-          <div>
-            <button type="submit">Add</button>
-          </div>
-        </form>
-      </div>
+      <ToggableDiv btnText="create blog" ref={blogFormRef}>
+        <BlogForm createBlog={addNewBlog} />
+      </ToggableDiv>
       {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
+        <Blog
+          key={blog.id}
+          blog={blog}
+          like={() => updateLikes(blog.id)}
+          del={() => deletePost(blog.id)}
+          user={user.username}
+        />
       ))}
     </div>
   );
