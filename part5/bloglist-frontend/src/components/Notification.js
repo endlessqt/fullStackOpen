@@ -26,7 +26,7 @@ const Notification = ({ notification }) => {
     return null;
   }
   return (
-    <div style={notification.type === "error" ? errorStyle : completedStyle}>
+    <div id="notification" style={notification.type === "error" ? errorStyle : completedStyle}>
       {notification.message}
     </div>
   );

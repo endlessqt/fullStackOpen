@@ -17,12 +17,12 @@ const Blog = ({ blog, like, del, user }) => {
   const showed = { display: visible ? "" : "none" };
   const hidden = { display: visible ? "none" : "" };
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} id={`${blog.title}`} >
       <div style={hidden}>
         {blog.title} by {blog.author}
-        <button onClick={handleVisibility}>view</button>
+        <button onClick={handleVisibility} id="view">view</button>
       </div>
-      <div style={showed}>
+      <div style={showed} id="info">
         {blog.title} by {blog.author}{" "}
         <button onClick={handleVisibility}>hide</button>
         <br />

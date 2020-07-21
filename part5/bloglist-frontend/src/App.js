@@ -128,10 +128,11 @@ const App = () => {
       <div>
         <h2>Log In </h2>
         <Notification notification={notification} />
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} id="logInForm">
           <div>
             username
             <input
+              id="username"
               type="text"
               name="username"
               value={username}
@@ -141,6 +142,7 @@ const App = () => {
           <div>
             password
             <input
+              id="password"
               type="text"
               name="password"
               value={password}
@@ -164,15 +166,17 @@ const App = () => {
       <ToggableDiv btnText="create blog" ref={blogFormRef}>
         <BlogForm createBlog={addNewBlog} />
       </ToggableDiv>
-      {blogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          like={() => updateLikes(blog.id)}
-          del={() => deletePost(blog.id)}
-          user={user.username}
-        />
-      ))}
+      <div id="blogWrapper">
+        {blogs.map((blog) => (
+          <Blog
+            key={blog.id}
+            blog={blog}
+            like={() => updateLikes(blog.id)}
+            del={() => deletePost(blog.id)}
+            user={user.username}
+          />
+        ))}
+      </div>
     </div>
   );
 };
