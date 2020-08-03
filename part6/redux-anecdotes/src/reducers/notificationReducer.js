@@ -1,13 +1,14 @@
 const notificationReducer = (state = { message: "" }, action) => {
   switch (action.type) {
     case "NEW_NOTIFICATION":
-      const message = action.data.message;
-      return { ...state, message };
+      const message = action.message;
+      const time = action.time;
+      const id = action.id;
+      return { ...state, message, time, id };
     case "REMOVE_NOTIFICATION":
-      const messageInState = state.message;
-      const messageInCreator = action.data.message;
-      if (messageInState === messageInCreator) {
-        return { ...state, message: "" };
+      if (action.id === state.id) {
+        clearTimeout(action.id);
+        return { ...state, message: "", time: 0, id: 0 };
       }
       return state;
     default:
@@ -15,22 +16,29 @@ const notificationReducer = (state = { message: "" }, action) => {
   }
 };
 
-export const createNotification = (message) => {
+const createNotification = (message, id, time) => {
   return {
     type: "NEW_NOTIFICATION",
-    data: {
-      message,
-    },
+    message,
+    time,
+    id,
   };
 };
 
-export const removeNotification = (message) => {
+const removeNotification = (id) => {
   return {
     type: "REMOVE_NOTIFICATION",
-    data: {
-      message,
-    },
+    id,
   };
 };
-
+let nextNotfcId = 0;
+export const setNotification = (message, time) => {
+  return (dispatch) => {
+    const id = nextNotfcId++;
+    dispatch(createNotification(message, id, time));
+    setTimeout(() => {
+      dispatch(removeNotification(id));
+    }, time * 1000);
+  };
+};
 export default notificationReducer;
