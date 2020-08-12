@@ -5,18 +5,20 @@ import blogService from "./services/blogs";
 import loginService from "./services/login";
 import ToggableDiv from "./components/ToggableDiv";
 import BlogForm from "./components/BlogForm";
+import { useSelector, useDispatch } from "react-redux";
+import { initBlogs } from "./reducers/blogReducer";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [notification, setNotification] = useState(null);
-  blogs.sort((a, b) => b.likes - a.likes);
+  const dispatch = useDispatch();
+  const blogs = useSelector((state) => state);
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, [blogs.length]);
-
+    dispatch(initBlogs());
+  }, [dispatch]);
+  console.log(blogs);
   useEffect(() => {
     const userJSON = window.localStorage.getItem("userLoggedInBlogsApp");
     if (userJSON) {
@@ -50,7 +52,7 @@ const App = () => {
       blogFormRef.current.handleVisibility();
       blogService.setToken(user.token);
       const newBlog = await blogService.create(blogObject);
-      setBlogs(blogs.concat(newBlog));
+      // setBlogs(blogs.concat(newBlog));
       setNotification({
         type: "ok",
         message: `New blog: ${newBlog.title} by ${newBlog.author} added to blog list`,
@@ -66,60 +68,58 @@ const App = () => {
     }
   };
   const updateLikes = async (id) => {
-    try {
-      const blog = blogs.find((blog) => blog.id === id);
-      const newBlog = {
-        ...blog,
-        user: blog.user.id,
-        likes: blog.likes + 1,
-      };
-
-      const res = await blogService.update(id, newBlog);
-
-      setBlogs(
-        blogs.map((blog) =>
-          blog.id === id ? { ...res, user: blog.user } : blog
-        )
-      );
-    } catch (error) {
-      setBlogs(blogs.filter((blog) => blog.id !== id));
-      setNotification({
-        type: "error",
-        message: "Blog was deleted",
-      });
-      setTimeout(() => {
-        setNotification(null);
-      }, 10000);
-    }
+    // try {
+    //   // const blog = blogs.find((blog) => blog.id === id);
+    //   const newBlog = {
+    //     ...blog,
+    //     user: blog.user.id,
+    //     likes: blog.likes + 1,
+    //   };
+    //   const res = await blogService.update(id, newBlog);
+    //   setBlogs(
+    //     blogs.map((blog) =>
+    //       blog.id === id ? { ...res, user: blog.user } : blog
+    //     )
+    //   );
+    // } catch (error) {
+    //   setBlogs(blogs.filter((blog) => blog.id !== id));
+    //   setNotification({
+    //     type: "error",
+    //     message: "Blog was deleted",
+    //   });
+    //   setTimeout(() => {
+    //     setNotification(null);
+    //   }, 10000);
+    // }
   };
   const deletePost = async (id) => {
-    try {
-      blogService.setToken(user.token);
-      const blog = blogs.find((blog) => id === blog.id);
-      if (
-        window.confirm(
-          `Do you really wish to delete ${blog.title} by ${blog.author}`
-        )
-      ) {
-        await blogService.del(blog.id);
-        setBlogs(blogs.filter((blog) => blog.id !== id));
-        setNotification({
-          type: "ok",
-          message: `Blog ${blog.title} by ${blog.author} deleted from the server`,
-        });
-        setTimeout(() => {
-          setNotification(null);
-        }, 5000);
-      }
-    } catch (error) {
-      setNotification({
-        type: "error",
-        message: error.response.data.error,
-      });
-      setTimeout(() => {
-        setNotification(null);
-      }, 5000);
-    }
+    // try {
+    //   blogService.setToken(user.token);
+    //   const blog = blogs.find((blog) => id === blog.id);
+    //   if (
+    //     window.confirm(
+    //       `Do you really wish to delete ${blog.title} by ${blog.author}`
+    //     )
+    //   ) {
+    //     await blogService.del(blog.id);
+    //     setBlogs(blogs.filter((blog) => blog.id !== id));
+    //     setNotification({
+    //       type: "ok",
+    //       message: `Blog ${blog.title} by ${blog.author} deleted from the server`,
+    //     });
+    //     setTimeout(() => {
+    //       setNotification(null);
+    //     }, 5000);
+    //   }
+    // } catch (error) {
+    //   setNotification({
+    //     type: "error",
+    //     message: error.response.data.error,
+    //   });
+    //   setTimeout(() => {
+    //     setNotification(null);
+    //   }, 5000);
+    // }
   };
 
   const blogFormRef = useRef();
