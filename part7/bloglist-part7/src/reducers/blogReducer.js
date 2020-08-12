@@ -3,17 +3,26 @@ import blogService from "../services/blogs";
 const reducer = (state = [], action) => {
   switch (action.type) {
     case "INIT_BLOGS":
-      const blogs = state.concat(
+      return state.concat(
         action.data.map((blog) => {
           return { ...blog, visibility: false };
         })
       );
-      return blogs;
     case "ADD_BLOG":
       return [...state, action.blog];
     case "DELETE_BLOG": {
       const id = action.id;
       return state.filter((blog) => blog.id !== id);
+    }
+    case "LIKE_BLOG": {
+      const id = action.id;
+      const updatedBlog = action.blog;
+      const newState = state.map((blog) =>
+        blog.id === id
+          ? { ...updatedBlog, user: blog.user, visibility: true }
+          : blog
+      );
+      return newState;
     }
     case "TOGGLE_VISIBILITY": {
       const id = action.id;
@@ -63,6 +72,16 @@ export const deleteBlog = (id) => {
     dispatch({
       type: "DELETE_BLOG",
       id,
+    });
+  };
+};
+export const likeBlog = (id, blogObj) => {
+  return async (dispatch) => {
+    const updatedBlog = await blogService.update(id, blogObj);
+    dispatch({
+      type: "LIKE_BLOG",
+      id,
+      blog: updatedBlog,
     });
   };
 };

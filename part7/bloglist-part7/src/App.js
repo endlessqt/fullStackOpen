@@ -6,7 +6,12 @@ import loginService from "./services/login";
 import ToggableDiv from "./components/ToggableDiv";
 import BlogForm from "./components/BlogForm";
 import { useSelector, useDispatch } from "react-redux";
-import { initBlogs, addBlog, deleteBlog } from "./reducers/blogReducer";
+import {
+  initBlogs,
+  addBlog,
+  deleteBlog,
+  likeBlog,
+} from "./reducers/blogReducer";
 
 const App = () => {
   const [username, setUsername] = useState("");
@@ -71,29 +76,24 @@ const App = () => {
     }
   };
   const updateLikes = async (id) => {
-    // try {
-    //   // const blog = blogs.find((blog) => blog.id === id);
-    //   const newBlog = {
-    //     ...blog,
-    //     user: blog.user.id,
-    //     likes: blog.likes + 1,
-    //   };
-    //   const res = await blogService.update(id, newBlog);
-    //   setBlogs(
-    //     blogs.map((blog) =>
-    //       blog.id === id ? { ...res, user: blog.user } : blog
-    //     )
-    //   );
-    // } catch (error) {
-    //   setBlogs(blogs.filter((blog) => blog.id !== id));
-    //   setNotification({
-    //     type: "error",
-    //     message: "Blog was deleted",
-    //   });
-    //   setTimeout(() => {
-    //     setNotification(null);
-    //   }, 10000);
-    // }
+    try {
+      const blog = blogs.find((blog) => blog.id === id);
+      const newBlog = {
+        ...blog,
+        user: blog.user.id,
+        likes: blog.likes + 1,
+      };
+      dispatch(likeBlog(id, newBlog));
+    } catch (error) {
+      // setBlogs(blogs.filter((blog) => blog.id !== id));
+      // setNotification({
+      //   type: "error",
+      //   message: "Blog was deleted",
+      // });
+      // setTimeout(() => {
+      //   setNotification(null);
+      // }, 10000);
+    }
   };
   const deletePost = async (id) => {
     try {
