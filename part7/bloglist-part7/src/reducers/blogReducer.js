@@ -9,6 +9,8 @@ const reducer = (state = [], action) => {
         })
       );
       return blogs;
+    case "ADD_BLOG":
+      return [...state, action.blog];
     case "TOGGLE_VISIBILITY":
       const id = action.id;
       const blogToChange = state.find((blog) => blog.id === id);
@@ -37,6 +39,16 @@ export const initBlogs = () => {
     return dispatch({
       type: "INIT_BLOGS",
       data: blogs,
+    });
+  };
+};
+
+export const addBlog = (blog) => {
+  return async (dispatch) => {
+    const newBlog = await blogService.create(blog);
+    dispatch({
+      type: "ADD_BLOG",
+      blog: newBlog,
     });
   };
 };
