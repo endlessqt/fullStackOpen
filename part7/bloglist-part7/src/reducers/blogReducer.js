@@ -11,7 +11,11 @@ const reducer = (state = [], action) => {
       return blogs;
     case "ADD_BLOG":
       return [...state, action.blog];
-    case "TOGGLE_VISIBILITY":
+    case "DELETE_BLOG": {
+      const id = action.id;
+      return state.filter((blog) => blog.id !== id);
+    }
+    case "TOGGLE_VISIBILITY": {
       const id = action.id;
       const blogToChange = state.find((blog) => blog.id === id);
       const changedBlog = {
@@ -22,6 +26,7 @@ const reducer = (state = [], action) => {
         return blog.id === id ? changedBlog : blog;
       });
       return newState;
+    }
     default:
       return state;
   }
@@ -49,6 +54,15 @@ export const addBlog = (blog) => {
     dispatch({
       type: "ADD_BLOG",
       blog: newBlog,
+    });
+  };
+};
+export const deleteBlog = (id) => {
+  return async (dispatch) => {
+    await blogService.del(id);
+    dispatch({
+      type: "DELETE_BLOG",
+      id,
     });
   };
 };

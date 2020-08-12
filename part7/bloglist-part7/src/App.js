@@ -6,13 +6,14 @@ import loginService from "./services/login";
 import ToggableDiv from "./components/ToggableDiv";
 import BlogForm from "./components/BlogForm";
 import { useSelector, useDispatch } from "react-redux";
-import { initBlogs, addBlog } from "./reducers/blogReducer";
+import { initBlogs, addBlog, deleteBlog } from "./reducers/blogReducer";
 
 const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [notification, setNotification] = useState(null);
+
   const dispatch = useDispatch();
 
   //blogs fetch
@@ -54,10 +55,7 @@ const App = () => {
     try {
       blogFormRef.current.handleVisibility();
       blogService.setToken(user.token);
-      // const newBlog = await blogService.create(blogObject);
-      // setBlogs(blogs.concat(newBlog));
       dispatch(addBlog(blogObject));
-      console.log(blogObject);
       // setNotification({
       //   type: "ok",
       //   message: `New blog: ${newBlog.title} by ${newBlog.author} added to blog list`,
@@ -98,33 +96,32 @@ const App = () => {
     // }
   };
   const deletePost = async (id) => {
-    // try {
-    //   blogService.setToken(user.token);
-    //   const blog = blogs.find((blog) => id === blog.id);
-    //   if (
-    //     window.confirm(
-    //       `Do you really wish to delete ${blog.title} by ${blog.author}`
-    //     )
-    //   ) {
-    //     await blogService.del(blog.id);
-    //     setBlogs(blogs.filter((blog) => blog.id !== id));
-    //     setNotification({
-    //       type: "ok",
-    //       message: `Blog ${blog.title} by ${blog.author} deleted from the server`,
-    //     });
-    //     setTimeout(() => {
-    //       setNotification(null);
-    //     }, 5000);
-    //   }
-    // } catch (error) {
-    //   setNotification({
-    //     type: "error",
-    //     message: error.response.data.error,
-    //   });
-    //   setTimeout(() => {
-    //     setNotification(null);
-    //   }, 5000);
-    // }
+    try {
+      blogService.setToken(user.token);
+      const blog = blogs.find((blog) => id === blog.id);
+      if (
+        window.confirm(
+          `Do you really wish to delete ${blog.title} by ${blog.author}`
+        )
+      ) {
+        dispatch(deleteBlog(id));
+        // setNotification({
+        //   type: "ok",
+        //   message: `Blog ${blog.title} by ${blog.author} deleted from the server`,
+        // });
+        // setTimeout(() => {
+        //   setNotification(null);
+        // }, 5000);
+      }
+    } catch (error) {
+      // setNotification({
+      //   type: "error",
+      //   message: error.response.data.error,
+      // });
+      // setTimeout(() => {
+      //   setNotification(null);
+      // }, 5000);
+    }
   };
 
   const blogFormRef = useRef();
