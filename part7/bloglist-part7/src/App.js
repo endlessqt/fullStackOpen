@@ -85,7 +85,6 @@ const App = () => {
       };
       dispatch(likeBlog(id, newBlog));
     } catch (error) {
-      // setBlogs(blogs.filter((blog) => blog.id !== id));
       // setNotification({
       //   type: "error",
       //   message: "Blog was deleted",

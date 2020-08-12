@@ -77,12 +77,19 @@ export const deleteBlog = (id) => {
 };
 export const likeBlog = (id, blogObj) => {
   return async (dispatch) => {
-    const updatedBlog = await blogService.update(id, blogObj);
-    dispatch({
-      type: "LIKE_BLOG",
-      id,
-      blog: updatedBlog,
-    });
+    try {
+      const updatedBlog = await blogService.update(id, blogObj);
+      dispatch({
+        type: "LIKE_BLOG",
+        id,
+        blog: updatedBlog,
+      });
+    } catch (error) {
+      dispatch({
+        type: "DELETE_BLOG",
+        id,
+      });
+    }
   };
 };
 
