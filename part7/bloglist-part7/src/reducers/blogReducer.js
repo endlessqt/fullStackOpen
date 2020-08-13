@@ -1,4 +1,5 @@
 import blogService from "../services/blogs";
+import { showNotification } from "./notificationReducer";
 
 const reducer = (state = [], action) => {
   switch (action.type) {
@@ -50,7 +51,7 @@ export const toggleVisibility = (id) => {
 export const initBlogs = () => {
   return async (dispatch) => {
     const blogs = await blogService.getAll();
-    return dispatch({
+    dispatch({
       type: "INIT_BLOGS",
       data: blogs,
     });
@@ -59,20 +60,39 @@ export const initBlogs = () => {
 
 export const addBlog = (blog) => {
   return async (dispatch) => {
-    const newBlog = await blogService.create(blog);
-    dispatch({
-      type: "ADD_BLOG",
-      blog: newBlog,
-    });
+    try {
+      const newBlog = await blogService.create(blog);
+      dispatch({
+        type: "ADD_BLOG",
+        blog: newBlog,
+      });
+      dispatch(
+        showNotification(
+          `New blog ${newBlog.title} by ${newBlog.author} added`,
+          5
+        )
+      );
+    } catch (error) {
+      dispatch(showNotification(`${error.response.data.error}`, 5));
+    }
   };
 };
 export const deleteBlog = (id) => {
   return async (dispatch) => {
-    await blogService.del(id);
-    dispatch({
-      type: "DELETE_BLOG",
-      id,
-    });
+    try {
+      await blogService.del(id);
+      dispatch({
+        type: "DELETE_BLOG",
+        id,
+      });
+      dispatch(showNotification(`Successful deletion`, 3));
+    } catch (error) {
+      dispatch({
+        type: "DELETE_BLOG",
+        id,
+      });
+      dispatch(showNotification(`Blog already deleted`, 5));
+    }
   };
 };
 export const likeBlog = (id, blogObj) => {
@@ -89,6 +109,7 @@ export const likeBlog = (id, blogObj) => {
         type: "DELETE_BLOG",
         id,
       });
+      dispatch(showNotification(`Blog was deleted`, 5));
     }
   };
 };

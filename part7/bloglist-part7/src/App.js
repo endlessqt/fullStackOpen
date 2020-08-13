@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import Blog from "./components/Blog";
 import Notification from "./components/Notification";
 import blogService from "./services/blogs";
-import loginService from "./services/login";
 import ToggableDiv from "./components/ToggableDiv";
 import BlogForm from "./components/BlogForm";
 import { useSelector, useDispatch } from "react-redux";
@@ -17,7 +16,6 @@ import { userLogout, userLogin, setUser } from "./reducers/userReducer";
 const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [notification, setNotification] = useState(null);
 
   const dispatch = useDispatch();
 
@@ -28,6 +26,32 @@ const App = () => {
   useEffect(() => {
     dispatch(initBlogs());
   }, [dispatch]);
+
+  const addNewBlog = (blogObject) => {
+    blogFormRef.current.handleVisibility();
+    blogService.setToken(user.token);
+    dispatch(addBlog(blogObject));
+  };
+  const updateLikes = (id) => {
+    const blog = blogs.find((blog) => blog.id === id);
+    const newBlog = {
+      ...blog,
+      user: blog.user.id,
+      likes: blog.likes + 1,
+    };
+    dispatch(likeBlog(id, newBlog));
+  };
+  const deletePost = (id) => {
+    blogService.setToken(user.token);
+    const blog = blogs.find((blog) => id === blog.id);
+    if (
+      window.confirm(
+        `Do you really wish to delete ${blog.title} by ${blog.author}`
+      )
+    ) {
+      dispatch(deleteBlog(id));
+    }
+  };
   //blogs
 
   //user
@@ -35,97 +59,24 @@ const App = () => {
   useEffect(() => {
     dispatch(setUser());
   }, [dispatch]);
-  //user
+
   const handleLogin = async (event) => {
     event.preventDefault();
-    try {
-      dispatch(userLogin({ username, password }));
-      setUsername("");
-      setPassword("");
-    } catch (error) {
-      // setNotification({ type: "error", message: error.response.data.error });
-      // setTimeout(() => {
-      //   setNotification(null);
-      // }, 5000);
-    }
+    dispatch(userLogin({ username, password }));
+    setUsername("");
+    setPassword("");
   };
   const handleLogout = () => {
     dispatch(userLogout());
   };
-
-  const addNewBlog = async (blogObject) => {
-    try {
-      blogFormRef.current.handleVisibility();
-      blogService.setToken(user.token);
-      dispatch(addBlog(blogObject));
-      // setNotification({
-      //   type: "ok",
-      //   message: `New blog: ${newBlog.title} by ${newBlog.author} added to blog list`,
-      // });
-      setTimeout(() => {
-        setNotification(null);
-      }, 5000);
-    } catch (error) {
-      setNotification({ type: "error", message: error.response.data.error });
-      setTimeout(() => {
-        setNotification(null);
-      }, 5000);
-    }
-  };
-  const updateLikes = async (id) => {
-    try {
-      const blog = blogs.find((blog) => blog.id === id);
-      const newBlog = {
-        ...blog,
-        user: blog.user.id,
-        likes: blog.likes + 1,
-      };
-      dispatch(likeBlog(id, newBlog));
-    } catch (error) {
-      // setNotification({
-      //   type: "error",
-      //   message: "Blog was deleted",
-      // });
-      // setTimeout(() => {
-      //   setNotification(null);
-      // }, 10000);
-    }
-  };
-  const deletePost = async (id) => {
-    try {
-      blogService.setToken(user.token);
-      const blog = blogs.find((blog) => id === blog.id);
-      if (
-        window.confirm(
-          `Do you really wish to delete ${blog.title} by ${blog.author}`
-        )
-      ) {
-        dispatch(deleteBlog(id));
-        // setNotification({
-        //   type: "ok",
-        //   message: `Blog ${blog.title} by ${blog.author} deleted from the server`,
-        // });
-        // setTimeout(() => {
-        //   setNotification(null);
-        // }, 5000);
-      }
-    } catch (error) {
-      // setNotification({
-      //   type: "error",
-      //   message: error.response.data.error,
-      // });
-      // setTimeout(() => {
-      //   setNotification(null);
-      // }, 5000);
-    }
-  };
+  //user
 
   const blogFormRef = useRef();
   if (user === null) {
     return (
       <div>
         <h2>Log In </h2>
-        <Notification notification={notification} />
+        <Notification />
         <form onSubmit={handleLogin} id="logInForm">
           <div>
             username
@@ -156,9 +107,9 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <Notification notification={notification} />
+      <Notification />
       <div>
-        {user.username} logged in
+        {user.username} Logged in
         <button onClick={handleLogout}>logout</button>
       </div>
       <ToggableDiv btnText="create blog" ref={blogFormRef}>

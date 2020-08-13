@@ -1,6 +1,6 @@
 import loginService from "../services/login";
 import blogService from "../services/blogs";
-
+import { showNotification } from "./notificationReducer";
 const reducer = (state = null, action) => {
   switch (action.type) {
     case "LOG_IN": {
@@ -24,11 +24,16 @@ const reducer = (state = null, action) => {
 
 export const userLogin = (userInfo) => {
   return async (dispatch) => {
-    const user = await loginService.login(userInfo);
-    return dispatch({
-      type: "LOG_IN",
-      user,
-    });
+    try {
+      const user = await loginService.login(userInfo);
+      dispatch({
+        type: "LOG_IN",
+        user,
+      });
+      dispatch(showNotification(`${user.username} logged in`, 5));
+    } catch (error) {
+      dispatch(showNotification(`${error.response.data.error}`, 3));
+    }
   };
 };
 
@@ -43,7 +48,7 @@ export const setUser = () => {
     const userJSON = window.localStorage.getItem("userLoggedInBlogsApp");
     if (userJSON) {
       const user = JSON.parse(userJSON);
-      return dispatch({
+      dispatch({
         type: "SET_USER",
         user,
       });
