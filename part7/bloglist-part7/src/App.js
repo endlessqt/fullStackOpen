@@ -12,50 +12,47 @@ import {
   deleteBlog,
   likeBlog,
 } from "./reducers/blogReducer";
+import { userLogout, userLogin, setUser } from "./reducers/userReducer";
 
 const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
   const [notification, setNotification] = useState(null);
 
   const dispatch = useDispatch();
 
   //blogs fetch
-  const blogs = useSelector((state) => state);
+  const blogs = useSelector((state) =>
+    state.blogs.sort((a, b) => b.likes - a.likes)
+  );
   useEffect(() => {
     dispatch(initBlogs());
   }, [dispatch]);
   //blogs
 
+  //user
+  const user = useSelector((state) => state.user);
   useEffect(() => {
-    const userJSON = window.localStorage.getItem("userLoggedInBlogsApp");
-    if (userJSON) {
-      const userObj = JSON.parse(userJSON);
-      setUser(userObj);
-      blogService.setToken(userObj.token);
-    }
-  }, []);
-
+    dispatch(setUser());
+  }, [dispatch]);
+  //user
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const user = await loginService.login({ username, password });
-      window.localStorage.setItem("userLoggedInBlogsApp", JSON.stringify(user));
-      setUser(user);
+      dispatch(userLogin({ username, password }));
       setUsername("");
       setPassword("");
     } catch (error) {
-      setNotification({ type: "error", message: error.response.data.error });
-      setTimeout(() => {
-        setNotification(null);
-      }, 5000);
+      // setNotification({ type: "error", message: error.response.data.error });
+      // setTimeout(() => {
+      //   setNotification(null);
+      // }, 5000);
     }
   };
   const handleLogout = () => {
-    window.localStorage.removeItem("userLoggedInBlogsApp");
-    setUser(null);
+    dispatch(userLogout());
   };
+
   const addNewBlog = async (blogObject) => {
     try {
       blogFormRef.current.handleVisibility();
