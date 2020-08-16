@@ -1,49 +1,57 @@
 import React from "react";
-import { useDispatch } from "react-redux";
-import { toggleVisibility } from "../reducers/blogReducer";
-import PropTypes from "prop-types";
+import { useParams, useHistory } from "react-router-dom";
+import { useDispatch, useStore } from "react-redux";
+import blogService from "../services/blogs";
+import { likeBlog, deleteBlog } from "../reducers/blogReducer";
 
-const Blog = ({ blog, like, del, user }) => {
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: "solid",
-    borderWidth: 1,
-    marginBottom: 5,
-  };
-
+const Blog = ({ blogs, user }) => {
+  const params = useParams();
+  const history = useHistory();
   const dispatch = useDispatch();
-  const handleVisibility = (id) => {
-    dispatch(toggleVisibility(id));
+  const blog = blogs.find((blog) => blog.id === params.id);
+  const updateLikes = (id) => {
+    const newBlog = {
+      ...blog,
+      user: blog.user.id,
+      likes: blog.likes + 1,
+    };
+    dispatch(likeBlog(id, newBlog));
   };
-  const showed = { display: blog.visibility ? "" : "none" };
-  const hidden = { display: blog.visibility ? "none" : "" };
+  const deletePost = (id) => {
+    blogService.setToken(user.token);
+    if (
+      window.confirm(
+        `Do you really wish to delete ${blog.title} by ${blog.author}`
+      )
+    ) {
+      dispatch(deleteBlog(id));
+      history.push("/");
+    }
+  };
+
+  if (!blog) {
+    return null;
+  }
+
   return (
-    <div style={blogStyle} id={`${blog.title}`}>
-      <div style={hidden}>
-        {blog.title} by {blog.author}
-        <button onClick={() => handleVisibility(blog.id)} id="view">
-          view
-        </button>
+    <div>
+      <h2>{blog.title}</h2>
+      <div>
+        <a href={`${blog.url}`} target="_blank" rel="noopener noreferrer">
+          {blog.url}
+        </a>
       </div>
-      <div style={showed} id="info">
-        {blog.title} by {blog.author}{" "}
-        <button onClick={() => handleVisibility(blog.id)}>hide</button>
-        <br />
-        {blog.url} <br />
-        likes:{blog.likes} <button onClick={like}>like</button> <br />
-        Created by: {blog.user.username}
-        <div style={{ display: blog.user.username === user ? "" : "none" }}>
-          <button onClick={del}>remove</button>
-        </div>
+      <div>
+        {blog.likes} likes{" "}
+        <button onClick={() => updateLikes(blog.id)}>like</button>
       </div>
+      <div>Added by {blog.user.username}</div>
+      <button
+        style={{ display: blog.user.username === user.username ? "" : "none" }}
+        onClick={() => deletePost(blog.id)}>
+        delete
+      </button>
     </div>
   );
-};
-Blog.propTypes = {
-  blog: PropTypes.object.isRequired,
-  like: PropTypes.func.isRequired,
-  del: PropTypes.func.isRequired,
-  user: PropTypes.string.isRequired,
 };
 export default Blog;

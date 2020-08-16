@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
-import Blog from "./components/Blog";
 import Notification from "./components/Notification";
 import blogService from "./services/blogs";
 import ToggableDiv from "./components/ToggableDiv";
 import BlogForm from "./components/BlogForm";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  initBlogs,
-  addBlog,
-  deleteBlog,
-  likeBlog,
-} from "./reducers/blogReducer";
+import { initBlogs, addBlog } from "./reducers/blogReducer";
 import { userLogout, userLogin, setUser } from "./reducers/userReducer";
+import Users from "./components/Users";
+import User from "./components/User";
+import Blogs from "./components/Blogs";
+import Blog from "./components/Blog";
+import Navigation from "./components/Navigation";
+import { Switch, Route, Link } from "react-router-dom";
 
 const App = () => {
   const [username, setUsername] = useState("");
@@ -31,26 +31,6 @@ const App = () => {
     blogFormRef.current.handleVisibility();
     blogService.setToken(user.token);
     dispatch(addBlog(blogObject));
-  };
-  const updateLikes = (id) => {
-    const blog = blogs.find((blog) => blog.id === id);
-    const newBlog = {
-      ...blog,
-      user: blog.user.id,
-      likes: blog.likes + 1,
-    };
-    dispatch(likeBlog(id, newBlog));
-  };
-  const deletePost = (id) => {
-    blogService.setToken(user.token);
-    const blog = blogs.find((blog) => id === blog.id);
-    if (
-      window.confirm(
-        `Do you really wish to delete ${blog.title} by ${blog.author}`
-      )
-    ) {
-      dispatch(deleteBlog(id));
-    }
   };
   //blogs
 
@@ -106,26 +86,26 @@ const App = () => {
 
   return (
     <div>
-      <h2>blogs</h2>
+      <Navigation user={user} handleLogout={handleLogout} />
       <Notification />
-      <div>
-        {user.username} Logged in
-        <button onClick={handleLogout}>logout</button>
-      </div>
-      <ToggableDiv btnText="create blog" ref={blogFormRef}>
-        <BlogForm createBlog={addNewBlog} />
-      </ToggableDiv>
-      <div id="blogWrapper">
-        {blogs.map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            like={() => updateLikes(blog.id)}
-            del={() => deletePost(blog.id)}
-            user={user.username}
-          />
-        ))}
-      </div>
+      <h2>Blog App</h2>
+      <Switch>
+        <Route path="/blogs/:id">
+          <Blog blogs={blogs} user={user} />
+        </Route>
+        <Route path="/users/:id">
+          <User />
+        </Route>
+        <Route path="/users">
+          <Users />
+        </Route>
+        <Route path="/">
+          <ToggableDiv btnText="create blog" ref={blogFormRef}>
+            <BlogForm createBlog={addNewBlog} />
+          </ToggableDiv>
+          <Blogs blogs={blogs} />
+        </Route>
+      </Switch>
     </div>
   );
 };
