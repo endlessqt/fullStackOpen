@@ -110,7 +110,11 @@ export const commentBlog = (id, blogObj) => {
         blog: updated,
       });
     } catch (error) {
-      console.log(error);
+      dispatch({
+        type: "DELETE_BLOG",
+        id,
+      });
+      dispatch(showNotification(`Blog was deleted`, 3));
     }
   };
 };
