@@ -74,6 +74,7 @@ blogsRouter.post("/:id/comments", async (req, res) => {
   };
   const blogWithComment = await Blog.findByIdAndUpdate(id, updated, {
     new: true,
+    runValidators: true,
   });
   res.json(blogWithComment);
 });

@@ -19,6 +19,14 @@ const reducer = (state = [], action) => {
       );
       return newState;
     }
+    case "COMMENT_BLOG": {
+      const id = action.id;
+      const updated = action.blog;
+      const newState = state.map((blog) => {
+        return blog.id === id ? { ...updated, user: blog.user } : blog;
+      });
+      return newState;
+    }
     default:
       return state;
   }
@@ -89,6 +97,20 @@ export const likeBlog = (id, blogObj) => {
         id,
       });
       dispatch(showNotification(`Blog was deleted`, 5));
+    }
+  };
+};
+export const commentBlog = (id, blogObj) => {
+  return async (dispatch) => {
+    try {
+      const updated = await blogService.comment(id, blogObj);
+      dispatch({
+        type: "COMMENT_BLOG",
+        id,
+        blog: updated,
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
 };

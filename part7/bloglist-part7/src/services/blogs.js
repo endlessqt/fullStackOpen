@@ -25,6 +25,11 @@ const update = async (id, blogObj) => {
   return res.data;
 };
 
+const comment = async (id, blogObj) => {
+  const res = await axios.post(`${baseUrl}/${id}/comments`, blogObj);
+  return res.data;
+};
+
 const del = async (id) => {
   const config = {
     headers: {
@@ -34,4 +39,4 @@ const del = async (id) => {
   await axios.delete(`${baseUrl}/${id}`, config);
 };
 
-export default { getAll, create, setToken, update, del };
+export default { getAll, create, setToken, update, del, comment };

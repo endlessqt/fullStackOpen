@@ -11,7 +11,7 @@ import User from "./components/User";
 import Blogs from "./components/Blogs";
 import Blog from "./components/Blog";
 import Navigation from "./components/Navigation";
-import { Switch, Route, Link } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 
 const App = () => {
   const [username, setUsername] = useState("");

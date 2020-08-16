@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useHistory } from "react-router-dom";
-import { useDispatch, useStore } from "react-redux";
+import { useDispatch } from "react-redux";
 import blogService from "../services/blogs";
-import { likeBlog, deleteBlog } from "../reducers/blogReducer";
+import { likeBlog, deleteBlog, commentBlog } from "../reducers/blogReducer";
 
 const Blog = ({ blogs, user }) => {
+  const [comment, setComment] = useState("");
   const params = useParams();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -27,6 +28,15 @@ const Blog = ({ blogs, user }) => {
       dispatch(deleteBlog(id));
       history.push("/");
     }
+  };
+  const commentPost = (id, comment) => {
+    const newBlog = {
+      ...blog,
+      user: blog.user.id,
+      comment: comment,
+    };
+    dispatch(commentBlog(id, newBlog));
+    setComment("");
   };
 
   if (!blog) {
@@ -51,6 +61,30 @@ const Blog = ({ blogs, user }) => {
         onClick={() => deletePost(blog.id)}>
         delete
       </button>
+      <div>
+        <h3>Comments</h3>
+        <input
+          type="text"
+          value={comment}
+          onChange={({ target }) => setComment(target.value)}
+        />{" "}
+        <button onClick={() => commentPost(blog.id, comment)}>
+          add comment
+        </button>
+        {blog.comments.length !== 0 ? (
+          <ul>
+            {blog.comments.map((comment, index) => {
+              /*I know that indexies as key is bad idea, but there is no possible problems with that implementation 
+            because we have no delete functionality on comments, so it's not gonna cause any problems in that app.
+            Possible solution is save generated ids to db and use them, i know i'm sorry and lazy to implement it just now */
+
+              return <li key={index}>{comment}</li>;
+            })}
+          </ul>
+        ) : (
+          <p>{"Be the very first commentator of that blog"}</p>
+        )}
+      </div>
     </div>
   );
 };
