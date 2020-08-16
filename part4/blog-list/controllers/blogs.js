@@ -62,13 +62,27 @@ blogsRouter.delete("/:id", async (req, res) => {
     res.status(401).json(err);
   }
 });
-
+blogsRouter.post("/:id/comments", async (req, res) => {
+  const id = req.params.id;
+  const blog = await Blog.findById(id);
+  if (!blog) {
+    return res.status(404).end;
+  }
+  const updated = {
+    ...blog.toJSON(),
+    comments: blog.comments.concat(req.body.comment),
+  };
+  const blogWithComment = await Blog.findByIdAndUpdate(id, updated, {
+    new: true,
+  });
+  res.json(blogWithComment);
+});
 blogsRouter.put("/:id", async (req, res) => {
   const id = req.params.id;
 
   const blog = await Blog.findById(id);
   if (!blog) {
-    res.status(404).end;
+    return res.status(404).end;
   }
   const updatedBlog = {
     ...blog.toJSON(),
