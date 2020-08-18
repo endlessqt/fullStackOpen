@@ -12,7 +12,16 @@ import Blogs from "./components/Blogs";
 import Blog from "./components/Blog";
 import Navigation from "./components/Navigation";
 import { Switch, Route } from "react-router-dom";
-
+import Container from "./components/Container";
+import {
+  Flex,
+  Heading,
+  FormControl,
+  Input,
+  FormLabel,
+  Stack,
+  Button,
+} from "@chakra-ui/core";
 const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -54,59 +63,88 @@ const App = () => {
   const blogFormRef = useRef();
   if (user === null) {
     return (
-      <div>
-        <h2>Log In </h2>
-        <Notification />
-        <form onSubmit={handleLogin} id="logInForm">
-          <div>
-            username
-            <input
-              id="username"
-              type="text"
-              name="username"
-              value={username}
-              onChange={({ target }) => setUsername(target.value)}
-            />
-          </div>
-          <div>
-            password
-            <input
-              id="password"
-              type="text"
-              name="password"
-              value={password}
-              onChange={({ target }) => setPassword(target.value)}
-            />
-          </div>
-          <button type="submit">log in</button>
-        </form>
-      </div>
+      <Container>
+        <Flex
+          direction="column"
+          justify="center"
+          align="center"
+          w="100%"
+          h="100vh">
+          <Heading as="h2" pb={24} fontSize={["2xl", "3xl", "4xl", "5xl"]}>
+            Log In Blog App
+          </Heading>
+          <Notification />
+          <form onSubmit={handleLogin} id="logInForm">
+            <Stack spacing={8} maxW={["2xs", "sm", "sm", "sm"]}>
+              <FormControl isRequired w="sm">
+                <FormLabel htmlFor="username" fontSize={"xl"}>
+                  Username
+                </FormLabel>
+                <Input
+                  variant="flushed"
+                  size="lg"
+                  id="username"
+                  type="text"
+                  name="username"
+                  value={username}
+                  onChange={({ target }) => setUsername(target.value)}
+                />
+              </FormControl>
+              <FormControl isRequired w="sm">
+                <FormLabel htmlFor="password" fontSize={"xl"}>
+                  Password
+                </FormLabel>
+                <Input
+                  variant="flushed"
+                  size="lg"
+                  id="password"
+                  type="text"
+                  name="password"
+                  value={password}
+                  onChange={({ target }) => setPassword(target.value)}
+                />
+              </FormControl>
+            </Stack>
+            <Flex justify="center" pt={4}>
+              <Button
+                mt={5}
+                size="lg"
+                type="submit"
+                variant="outline"
+                variantColor="green">
+                Log In
+              </Button>
+            </Flex>
+          </form>
+        </Flex>
+      </Container>
     );
   }
 
   return (
-    <div>
+    <>
       <Navigation user={user} handleLogout={handleLogout} />
-      <Notification />
-      <h2>Blog App</h2>
-      <Switch>
-        <Route path="/blogs/:id">
-          <Blog blogs={blogs} user={user} />
-        </Route>
-        <Route path="/users/:id">
-          <User />
-        </Route>
-        <Route path="/users">
-          <Users />
-        </Route>
-        <Route path="/">
-          <ToggableDiv btnText="create blog" ref={blogFormRef}>
-            <BlogForm createBlog={addNewBlog} />
-          </ToggableDiv>
-          <Blogs blogs={blogs} />
-        </Route>
-      </Switch>
-    </div>
+      <Container>
+        <Notification />
+        <Switch>
+          <Route path="/blogs/:id">
+            <Blog blogs={blogs} user={user} />
+          </Route>
+          <Route path="/users/:id">
+            <User />
+          </Route>
+          <Route path="/users">
+            <Users />
+          </Route>
+          <Route path="/">
+            <ToggableDiv btnText="create blog" ref={blogFormRef}>
+              <BlogForm createBlog={addNewBlog} />
+            </ToggableDiv>
+            <Blogs blogs={blogs} />
+          </Route>
+        </Switch>
+      </Container>
+    </>
   );
 };
 
