@@ -1,11 +1,9 @@
 import React, { useState, useImperativeHandle } from "react";
-import PropTypes from "prop-types";
+import { Button, Flex, Collapse } from "@chakra-ui/core";
 
 const ToggableDiv = React.forwardRef((props, ref) => {
   const [visible, setVisible] = useState(false);
 
-  const showed = { display: visible ? "" : "none" };
-  const hidden = { display: visible ? "none" : "" };
   const handleVisibility = () => {
     setVisible(!visible);
   };
@@ -16,20 +14,25 @@ const ToggableDiv = React.forwardRef((props, ref) => {
     };
   });
   return (
-    <div>
-      <div style={hidden}>
-        <button onClick={handleVisibility}>{props.btnText}</button>
-      </div>
-      <div style={showed}>
+    <>
+      <Button size="lg" onClick={handleVisibility} fontSize="2xl">
+        {props.btnText}
+      </Button>
+      <Collapse isOpen={visible}>
         {props.children}
-        <button onClick={handleVisibility}>cancel</button>
-      </div>
-    </div>
+        <Flex justify="center" w="full">
+          <Button
+            size="lg"
+            onClick={handleVisibility}
+            variantColor="red"
+            variant="outline">
+            cancel
+          </Button>
+        </Flex>
+      </Collapse>
+    </>
   );
 });
 ToggableDiv.displayName = "Toggable";
-ToggableDiv.propTypes = {
-  btnText: PropTypes.string.isRequired,
-  children: PropTypes.object,
-};
+
 export default ToggableDiv;

@@ -12,7 +12,10 @@ const Navigation = ({ user, handleLogout }) => {
       wrap="wrap"
       justify="space-between"
       color="white">
-      <Heading as="h2" mr={10} display={["none", "none", "block", "block"]}>
+      <Heading
+        as="h2"
+        mr={10}
+        display={["none", "none", "inline-block", "inline-block"]}>
         Blog App
       </Heading>
       <Stack isInline spacing={3} flex="1">

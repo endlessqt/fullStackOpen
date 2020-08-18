@@ -137,7 +137,7 @@ const App = () => {
             <Users />
           </Route>
           <Route path="/">
-            <ToggableDiv btnText="create blog" ref={blogFormRef}>
+            <ToggableDiv btnText="Add Blog" ref={blogFormRef}>
               <BlogForm createBlog={addNewBlog} />
             </ToggableDiv>
             <Blogs blogs={blogs} />

@@ -30,6 +30,10 @@ const Blog = ({ blogs, user }) => {
     }
   };
   const commentPost = (id, comment) => {
+    if (!comment.length) {
+      setComment("");
+      return;
+    }
     const newBlog = {
       ...blog,
       user: blog.user.id,

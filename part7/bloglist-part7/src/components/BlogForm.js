@@ -1,6 +1,15 @@
 import React, { useState } from "react";
+import {
+  FormControl,
+  FormLabel,
+  Input,
+  Heading,
+  Flex,
+  Button,
+  Stack,
+} from "@chakra-ui/core";
 
-const BlogForm = ({ createBlog }) => {
+const BlogForm = ({ createBlog, ref }) => {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [author, setAuthor] = useState("");
@@ -17,48 +26,68 @@ const BlogForm = ({ createBlog }) => {
     setUrl("");
   };
   return (
-    <div id="blogForm">
-      <h2>Create new blog</h2>
-      <div>
-        <form onSubmit={addNewBlog}>
-          <div>
-            title
-            <input
+    <Flex direction="column" justify="center" align="center">
+      <Heading as="h2" size="xl" my={8}>
+        New Blog
+      </Heading>
+      <form onSubmit={addNewBlog} style={{ width: "100%" }}>
+        <Stack spacing={3} m={3}>
+          <FormControl>
+            <FormLabel fontSize="xl" htmlFor="title">
+              Title
+            </FormLabel>
+            <Input
+              variant="flushed"
+              size="lg"
               id="title"
               type="text"
               value={title}
               name="title"
               onChange={({ target }) => setTitle(target.value)}
             />
-          </div>
-          <div>
-            author
-            <input
+          </FormControl>
+          <FormControl>
+            <FormLabel fontSize="xl" htmlFor="author">
+              Author
+            </FormLabel>
+            <Input
+              variant="flushed"
+              size="lg"
               id="author"
               type="text"
               value={author}
               name="title"
               onChange={({ target }) => setAuthor(target.value)}
             />
-          </div>
-          <div>
-            url
-            <input
+          </FormControl>
+          <FormControl>
+            <FormLabel fontSize="xl" htmlFor="url">
+              URL
+            </FormLabel>
+            <Input
+              variant="flushed"
+              size="lg"
               id="url"
               type="text"
               value={url}
               name="title"
               onChange={({ target }) => setUrl(target.value)}
             />
-          </div>
-          <div>
-            <button id="buttonSubmit" type="submit">
-              create
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          </FormControl>
+        </Stack>
+        <Flex justify="center">
+          <Button
+            variantColor="teal"
+            size="lg"
+            m={1}
+            id="buttonSubmit"
+            type="submit"
+            variant="outline">
+            create
+          </Button>
+        </Flex>
+      </form>
+    </Flex>
   );
 };
 
