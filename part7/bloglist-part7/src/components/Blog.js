@@ -4,6 +4,18 @@ import { useDispatch } from "react-redux";
 import blogService from "../services/blogs";
 import { likeBlog, deleteBlog, commentBlog } from "../reducers/blogReducer";
 
+import {
+  Flex,
+  List,
+  ListItem,
+  Heading,
+  Link,
+  Button,
+  Textarea,
+  Icon,
+  Text,
+  Divider,
+} from "@chakra-ui/core";
 const Blog = ({ blogs, user }) => {
   const [comment, setComment] = useState("");
   const params = useParams();
@@ -48,48 +60,99 @@ const Blog = ({ blogs, user }) => {
   }
 
   return (
-    <div>
-      <h2>{blog.title}</h2>
-      <div>
-        <a href={`${blog.url}`} target="_blank" rel="noopener noreferrer">
+    <>
+      <Heading
+        mt={3}
+        as="h2"
+        fontSize="5xl"
+        textAlign="center"
+        fontWeight="400"
+        letterSpacing={2}>
+        {blog.title}
+      </Heading>
+      <Flex direction="column" h="80vh" m={3} fontSize="xl">
+        <Link
+          fontSize="2xl"
+          color="teal.600"
+          isExternal
+          href={`${blog.url}`}
+          mb={5}
+          textAlign="center">
           {blog.url}
-        </a>
-      </div>
-      <div>
-        {blog.likes} likes{" "}
-        <button onClick={() => updateLikes(blog.id)}>like</button>
-      </div>
-      <div>Added by {blog.user.username}</div>
-      <button
-        style={{ display: blog.user.username === user.username ? "" : "none" }}
-        onClick={() => deletePost(blog.id)}>
-        delete
-      </button>
-      <div>
-        <h3>Comments</h3>
-        <input
-          type="text"
-          value={comment}
-          onChange={({ target }) => setComment(target.value)}
-        />{" "}
-        <button onClick={() => commentPost(blog.id, comment)}>
-          add comment
-        </button>
-        {blog.comments.length !== 0 ? (
-          <ul>
-            {blog.comments.map((comment, index) => {
-              /*I know that indexies as key is bad idea, but there is no possible problems with that implementation 
+          <Icon name="external-link" mx={1} />
+        </Link>
+
+        <Text textAlign="center">
+          Blog added by {blog.user.username} has{" "}
+          <Text as={"span"} color="pink.500">
+            {blog.likes}
+          </Text>{" "}
+          {blog.likes > 1 ? "likes" : "like"}
+          <br />
+          <Button
+            size="lg"
+            my={2}
+            variant="outline"
+            variantColor="pink"
+            onClick={() => updateLikes(blog.id)}>
+            like that blog
+          </Button>
+          <br />
+          <Button
+            size="md"
+            rightIcon={"delete"}
+            variant="solid"
+            variantColor="red"
+            display={{
+              display: blog.user.username === user.username ? "" : "none",
+            }}
+            onClick={() => deletePost(blog.id)}>
+            delete
+          </Button>
+        </Text>
+        <Divider borderColor="black" mt={5} />
+        <div>
+          <Heading as="h3" my={10} textAlign="center" textTransform="uppercase">
+            Comments
+          </Heading>
+          <Textarea
+            m={3}
+            color="black"
+            placeholder="Leave your comment here"
+            value={comment}
+            resize="vertical"
+            onChange={({ target }) => setComment(target.value)}
+          />
+          <Flex justify="flex-end">
+            <Button
+              onClick={() => commentPost(blog.id, comment)}
+              size="lg"
+              variant="outline"
+              variantColor="gray">
+              Add Comment
+            </Button>
+          </Flex>
+          {blog.comments.length !== 0 ? (
+            <List
+              p={10}
+              spacing="3"
+              styleType="decimal"
+              fontSize={["lg", "base", "2xl"]}>
+              {blog.comments.map((comment, index) => {
+                /*I know that indexies as key is bad idea, but there is no possible problems with that implementation 
             because we have no delete functionality on comments, so it's not gonna cause any problems in that app.
             Possible solution is save generated ids to db and use them, i know i'm sorry and lazy to implement it just now */
-
-              return <li key={index}>{comment}</li>;
-            })}
-          </ul>
-        ) : (
-          <p>{"Be the very first commentator of that blog"}</p>
-        )}
-      </div>
-    </div>
+                return <ListItem key={index}>{comment}</ListItem>;
+              })}
+            </List>
+          ) : (
+            <Text textAlign="center" fontSize="3xl" mt={8}>
+              {"Be the very first commentator of that blog!"}
+            </Text>
+          )}
+        </div>
+      </Flex>
+    </>
   );
 };
 export default Blog;

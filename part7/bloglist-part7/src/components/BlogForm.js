@@ -30,7 +30,7 @@ const BlogForm = ({ createBlog, ref }) => {
       <Heading as="h2" size="xl" my={8}>
         New Blog
       </Heading>
-      <form onSubmit={addNewBlog} style={{ width: "80%" }}>
+      <form onSubmit={addNewBlog} style={{ width: "70%" }}>
         <Stack spacing={3} m={3}>
           <FormControl>
             <FormLabel fontSize="xl" htmlFor="title">
