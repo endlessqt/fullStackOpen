@@ -22,6 +22,7 @@ import {
   Stack,
   Button,
 } from "@chakra-ui/core";
+import { fetchAllUsers } from "./reducers/allUsersReducer";
 
 const App = () => {
   const [username, setUsername] = useState("");
@@ -50,6 +51,9 @@ const App = () => {
     dispatch(setUser());
   }, [dispatch]);
 
+  useEffect(() => {
+    dispatch(fetchAllUsers());
+  }, [dispatch]);
   const handleLogin = async (event) => {
     event.preventDefault();
     dispatch(userLogin({ username, password }));
@@ -65,6 +69,7 @@ const App = () => {
   if (user === null) {
     return (
       <Container>
+        <Notification />
         <Flex
           direction="column"
           justify="center"
@@ -74,7 +79,7 @@ const App = () => {
           <Heading as="h2" pb={24} fontSize={["2xl", "3xl", "4xl", "5xl"]}>
             Log In Blog App
           </Heading>
-          <Notification />
+
           <form onSubmit={handleLogin} id="logInForm">
             <Stack spacing={8} maxW={["2xs", "sm", "sm", "sm"]}>
               <FormControl isRequired w="sm">

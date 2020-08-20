@@ -1,29 +1,49 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { fetchAllUsers } from "../reducers/allUsersReducer";
-
+import { Heading, Flex, Box, Link as ChakraLink, Text } from "@chakra-ui/core";
 const Users = () => {
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(fetchAllUsers());
-  }, [dispatch]);
   const users = useSelector((state) =>
     state.users.sort((a, b) => b.blogs.length - a.blogs.length)
   );
   return (
-    <div>
-      <h2>Users</h2>
-      {users.map((user) => {
-        return (
-          <div key={user.id}>
-            <Link to={`users/${user.id}`}>
-              {user.username} {user.blogs.length}
-            </Link>
-          </div>
-        );
-      })}
-    </div>
+    <>
+      <Heading
+        mt={3}
+        as="h2"
+        fontSize="5xl"
+        textAlign="center"
+        fontWeight="400"
+        letterSpacing={2}>
+        Users
+      </Heading>
+      <Text textAlign="center" fontSize="2xl">
+        Blogs by user
+        <Text fontSize="md">click on user for more info</Text>
+      </Text>
+      <Flex
+        m={2}
+        direction="column"
+        fontSize="2xl"
+        justify="center"
+        align="center">
+        {users.map((user) => {
+          return (
+            <Box key={user.id} fontSize="2xl">
+              <ChakraLink
+                color="teal.500"
+                as={Link}
+                to={`users/${user.id}`}
+                display="inline-block">
+                {user.username}
+              </ChakraLink>
+              {" — "}
+              {user.blogs.length}
+            </Box>
+          );
+        })}
+      </Flex>
+    </>
   );
 };
 
