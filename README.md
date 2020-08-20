@@ -1,2 +1,2 @@
-# fullStackOpen
+# FullStackOpen
 My fullstack open exercises 
