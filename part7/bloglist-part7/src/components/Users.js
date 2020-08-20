@@ -1,5 +1,5 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Heading, Flex, Box, Link as ChakraLink, Text } from "@chakra-ui/core";
 const Users = () => {
