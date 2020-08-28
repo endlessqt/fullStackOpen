@@ -70,7 +70,7 @@ let books = [
     genres: ["classic", "crime"],
   },
   {
-    title: "The Demon ",
+    title: "The Demon",
     published: 1872,
     author: "Fyodor Dostoevsky",
     id: "afa5de04-344d-11e9-a414-719c6709cf3e",
@@ -79,9 +79,24 @@ let books = [
 ];
 
 const typeDefs = gql`
+  type Book {
+    title: String!
+    author: String!
+    published: Int!
+    genres: [String!]!
+    id: ID!
+  }
+  type Author {
+    name: String!
+    born: Int
+    bookCount: Int!
+    id: ID!
+  }
   type Query {
     booksCount: Int!
     authorCount: Int!
+    allBooks(author: String, genre: String): [Book!]!
+    allAuthors: [Author!]!
   }
 `;
 
@@ -89,6 +104,29 @@ const resolvers = {
   Query: {
     booksCount: () => books.length,
     authorCount: () => authors.length,
+    allBooks: (parent, args) => {
+      const author = args.author;
+      const genre = args.genre;
+      if (!args.author && !args.genre) return books;
+      if (args.author && args.genre) {
+        return books
+          .filter((b) => b.author === author)
+          .filter((b) => b.genres.includes(genre));
+      } else {
+        if (args.genre) {
+          return books.filter((b) => b.genres.includes(genre));
+        } else {
+          return books.filter((b) => b.author === author);
+        }
+      }
+    },
+    allAuthors: () => {
+      return authors.map((author) => {
+        const booksByAuthor = books.filter((b) => author.name === b.author)
+          .length;
+        return { ...author, bookCount: booksByAuthor };
+      });
+    },
   },
 };
 
