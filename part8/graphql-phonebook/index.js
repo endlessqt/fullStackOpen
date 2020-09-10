@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { ApolloServer, gql } = require("apollo-server");
+const { ApolloServer, gql, UserInputError } = require("apollo-server");
 const mongoose = require("mongoose");
 const Book = require("./models/Book");
 const Author = require("./models/Author");
@@ -109,27 +109,46 @@ const resolvers = {
         author: authorInDB ? authorInDB._id : null,
       });
       if (!authorInDB) {
-        const author = new Author({ name: args.author });
-        const savedAuthor = await author.save();
-        book.author = savedAuthor._id;
+        try {
+          const author = new Author({ name: args.author });
+          const savedAuthor = await author.save();
+          book.author = savedAuthor._id;
+          const newBook = await book.save();
+          const returnedBook = await Book.findById(newBook._id).populate(
+            "author"
+          );
+          return returnedBook;
+        } catch (error) {
+          throw new UserInputError(error.message, {
+            invalidArgs: args,
+          });
+        }
+      }
+      try {
         const newBook = await book.save();
         const returnedBook = await Book.findById(newBook._id).populate(
           "author"
         );
         return returnedBook;
+      } catch (error) {
+        throw new UserInputError(error.message, {
+          invalidArgs: args,
+        });
       }
-
-      const newBook = await book.save();
-      const returnedBook = await Book.findById(newBook._id).populate("author");
-      return returnedBook;
     },
     editAuthor: async (parent, args) => {
       const name = args.name;
       const year = args.setBornTo;
       const author = await Author.findOne({ name });
       author.born = year;
-      await author.save();
-      return author;
+      try {
+        await author.save();
+        return author;
+      } catch (error) {
+        throw new UserInputError(error.message, {
+          invalidArgs: args,
+        });
+      }
     },
   },
 };
