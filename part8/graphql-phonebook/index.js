@@ -1,9 +1,17 @@
 require("dotenv").config();
-const { ApolloServer, gql, UserInputError } = require("apollo-server");
+const {
+  ApolloServer,
+  gql,
+  UserInputError,
+  AuthenticationError,
+} = require("apollo-server");
 const mongoose = require("mongoose");
-const Book = require("./models/Book");
-const Author = require("./models/Author");
 const MONGO_URI = process.env.MONGO_URI;
+const Book = require("./models/Book");
+const User = require("./models/User");
+const Author = require("./models/Author");
+const jwt = require("jsonwebtoken");
+const JWT_SECRET = process.env.JWT_SECRET;
 
 mongoose.set("useFindAndModify", false);
 
@@ -22,6 +30,14 @@ mongoose.connection.once("open", () => {
 });
 
 const typeDefs = gql`
+  type User {
+    username: String!
+    favouriteGenre: String!
+    id: ID!
+  }
+  type Token {
+    value: String!
+  }
   type Author {
     name: String!
     born: Int
@@ -40,8 +56,11 @@ const typeDefs = gql`
     authorCount: Int!
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+    me: User
   }
   type Mutation {
+    createUser(username: String!, favouriteGenre: String!): User
+    login(username: String!, password: String!): Token
     addBook(
       title: String!
       author: String!
@@ -100,9 +119,13 @@ const resolvers = {
       const authors = await Author.find({});
       return authors;
     },
+    me: (parent, args, context) => context.user,
   },
   Mutation: {
-    addBook: async (parent, args) => {
+    addBook: async (parent, args, context) => {
+      const { user } = context;
+      if (!user)
+        throw new AuthenticationError("you have no permission to do dat");
       const authorInDB = await Author.findOne({ name: args.author });
       const book = new Book({
         ...args,
@@ -136,7 +159,10 @@ const resolvers = {
         });
       }
     },
-    editAuthor: async (parent, args) => {
+    editAuthor: async (parent, args, context) => {
+      const { user } = context;
+      if (!user)
+        throw new AuthenticationError("you have no permission to do dat");
       const name = args.name;
       const year = args.setBornTo;
       const author = await Author.findOne({ name });
@@ -150,12 +176,50 @@ const resolvers = {
         });
       }
     },
+    createUser: async (parent, args) => {
+      const username = args.username;
+      const favouriteGenre = args.favouriteGenre;
+      const user = new User({
+        username,
+        favouriteGenre,
+      });
+      try {
+        const savedUser = await user.save();
+        return savedUser;
+      } catch (error) {
+        throw new UserInputError(error.message, {
+          invalidArgs: args,
+        });
+      }
+    },
+    login: async (parent, args) => {
+      const { username, password } = args;
+      const user = await User.findOne({ username });
+      if (!user || password !== "fullstackopen") {
+        throw new UserInputError(
+          "u have no account or trying to sign with wrong credentials"
+        );
+      }
+      const usersToken = {
+        username: user.username,
+        id: user._id,
+      };
+      return { value: jwt.sign(usersToken, JWT_SECRET) };
+    },
   },
 };
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  context: async ({ req }) => {
+    const auth = req ? req.headers.authorization : null;
+    if (auth && auth.toLowerCase().startsWith("bearer")) {
+      const decodedToken = jwt.verify(auth.substring(7), JWT_SECRET);
+      const user = await User.findById(decodedToken.id);
+      return { user };
+    }
+  },
 });
 
 server.listen().then(({ url }) => {
