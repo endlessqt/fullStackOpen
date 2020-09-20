@@ -1,24 +1,6 @@
 import React from "react";
-import { gql, useQuery } from "@apollo/client";
-
-const BOOKS_BY_GENRE = gql`
-  query($genre: String) {
-    allBooks(genre: $genre) {
-      title
-      published
-      author {
-        name
-      }
-    }
-  }
-`;
-const ME = gql`
-  query {
-    me {
-      favouriteGenre
-    }
-  }
-`;
+import { useQuery } from "@apollo/client";
+import { ME, BOOKS_BY_GENRE } from "../queries";
 
 const Recommend = ({ show }) => {
   const { data, loading } = useQuery(ME);
