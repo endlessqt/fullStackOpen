@@ -83,6 +83,7 @@ export const BOOKS_BY_GENRE = gql`
 export const ME = gql`
   query {
     me {
+      username
       favouriteGenre
     }
   }
