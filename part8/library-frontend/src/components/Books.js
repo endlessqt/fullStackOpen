@@ -12,9 +12,7 @@ const Books = (props) => {
   if (loading) {
     return <div>loading...</div>;
   }
-  const changeFilter = (genre) => {
-    setFilter(genre);
-  };
+
   const allGenres = Array.from(
     new Set(data.allBooks.map((b) => b.genres).flat(Infinity))
   );
@@ -59,12 +57,12 @@ const Books = (props) => {
       </table>
       {allGenres.map((g) => {
         return (
-          <button onClick={() => changeFilter(g)} key={g}>
+          <button onClick={() => setFilter(g)} key={g}>
             {g}
           </button>
         );
       })}
-      <button onClick={() => changeFilter("all")}>{"all genres"}</button>
+      <button onClick={() => setFilter("all")}>{"all genres"}</button>
     </div>
   );
 };
