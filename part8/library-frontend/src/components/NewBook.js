@@ -10,6 +10,9 @@ const NewBook = (props) => {
 
   const [addBook] = useMutation(ADD_BOOK, {
     refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
+    update: (store, response) => {
+      
+    }
   });
 
   if (!props.show) {

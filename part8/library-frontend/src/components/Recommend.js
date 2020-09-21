@@ -1,8 +1,13 @@
 import React, { useEffect } from "react";
-import { useQuery, useLazyQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import { BOOKS_BY_GENRE } from "../queries";
 
-const Recommend = ({ show, user }) => {
+const Recommend = ({
+  show,
+  user,
+  fetchRecomendations,
+  setFetchRecomendations,
+}) => {
   const genre = user ? user.favouriteGenre : null;
   const [getBooksByGenre, result] = useLazyQuery(BOOKS_BY_GENRE, {
     variables: { genre },
@@ -12,7 +17,10 @@ const Recommend = ({ show, user }) => {
       getBooksByGenre();
     }
   }, [result.data, user, getBooksByGenre]);
-
+  if (fetchRecomendations && user) {
+    result.refetch({ variables: { genre } });
+    setFetchRecomendations(false);
+  }
   if (!show) {
     return null;
   }
