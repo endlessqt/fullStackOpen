@@ -5,6 +5,7 @@ const {
   UserInputError,
   AuthenticationError,
 } = require("apollo-server");
+const { PubSub } = require("apollo-server");
 const mongoose = require("mongoose");
 const MONGO_URI = process.env.MONGO_URI;
 const Book = require("./models/Book");
@@ -12,7 +13,7 @@ const User = require("./models/User");
 const Author = require("./models/Author");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
-
+const pubsub = new PubSub();
 mongoose.set("useFindAndModify", false);
 
 console.log("connecting to mongoDB");
@@ -50,6 +51,9 @@ const typeDefs = gql`
     author: Author!
     genres: [String!]!
     id: ID!
+  }
+  type Subscription {
+    bookAdded: Book!
   }
   type Query {
     booksCount: Int!
@@ -140,6 +144,7 @@ const resolvers = {
           const returnedBook = await Book.findById(newBook._id).populate(
             "author"
           );
+          pubsub.publish("BOOK_ADDED", { bookAdded: returnedBook });
           return returnedBook;
         } catch (error) {
           throw new UserInputError(error.message, {
@@ -152,6 +157,7 @@ const resolvers = {
         const returnedBook = await Book.findById(newBook._id).populate(
           "author"
         );
+        pubsub.publish("BOOK_ADDED", { bookAdded: returnedBook });
         return returnedBook;
       } catch (error) {
         throw new UserInputError(error.message, {
@@ -207,6 +213,11 @@ const resolvers = {
       return { value: jwt.sign(usersToken, JWT_SECRET) };
     },
   },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator(["BOOK_ADDED"]),
+    },
+  },
 };
 
 const server = new ApolloServer({
@@ -222,6 +233,7 @@ const server = new ApolloServer({
   },
 });
 
-server.listen().then(({ url }) => {
+server.listen().then(({ url, subscriptionsUrl }) => {
   console.log(`Server ready at ${url}`);
+  console.log(`Subscription ready at ${subscriptionsUrl}`);
 });
