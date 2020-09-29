@@ -7,33 +7,59 @@ type Result =
   | "obese class I (moderately obese)"
   | "Obese Class II(severely obese)"
   | "obese class III(vary severely obese)";
+interface weightHeight {
+  height: number;
+  weight: number;
+}
+
+const parseArguments = (args: Array<string>): weightHeight => {
+  if (process.argv.length < 4) throw new Error("not enough arguements");
+  if (process.argv.length > 4) throw new Error("to many arguements");
+  if (!isNaN(Number(process.argv[2])) && !isNaN(Number(process.argv[3]))) {
+    return {
+      height: Number(process.argv[2]),
+      weight: Number(process.argv[3]),
+    };
+  }
+  throw new Error("arguements are not numbers");
+};
 
 const calcuateBmi = (weight: number, height: number): Result => {
   const bmi = Math.round(weight / Math.pow(height / 100, 2));
   switch (true) {
     case bmi < 15:
-      return "very severely underweigh";
+      console.log("very severely underweigh");
+      return;
     case bmi <= 16:
-      return "severly underweight";
+      console.log("severly underweight");
+      return;
     case bmi <= 18.5:
-      return "underweight";
+      console.log("underweight");
+      return;
     case bmi <= 25:
-      return "normal(healthy weight)";
+      console.log("normal(healthy weight)");
+      return;
     case bmi <= 30:
-      return "overweight";
+      console.log("overweight");
+      return;
     case bmi <= 35:
-      return "obese class I (moderately obese)";
+      console.log("obese class I (moderately obese)");
+      return;
     case bmi <= 40:
-      return "Obese Class II(severely obese)";
+      console.log("Obese Class II(severely obese)");
+      return;
     case bmi > 40:
-      return "obese class III(vary severely obese)";
+      console.log("obese class III(vary severely obese)");
+      return;
     default:
       throw new Error(
         "WOW, something is incredibly wrong with you or my function"
       );
   }
 };
-console.log(calcuateBmi(75, 180));
-console.log(calcuateBmi(92, 173));
-console.log(calcuateBmi(52, 170));
-console.log(calcuateBmi(100, 188));
+try {
+  const { weight, height } = parseArguments(process.argv);
+  calcuateBmi(weight, height);
+} catch (e) {
+  console.log("Error happened", e.message);
+}
