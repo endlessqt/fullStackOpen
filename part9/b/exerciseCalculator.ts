@@ -7,7 +7,22 @@ interface Output {
   ratingDescription: string;
   success: boolean;
 }
-
+interface exercisesArgs {
+  target: number;
+  daysArr: Array<number>;
+}
+const parseArgs = (args: Array<string>): exercisesArgs => {
+  if (args.length <= 3) throw new Error("not enough arguments");
+  const target = Number(args[2]);
+  const daysArr = args.splice(3).map((arg) => Number(arg));
+  if (!isNaN(target) && !daysArr.some((val) => isNaN(val))) {
+    return {
+      target,
+      daysArr,
+    };
+  }
+  throw new Error("all arguments must to be numbers");
+};
 const calculateExercises = (array: Array<number>, target: number): Output => {
   const result = {} as Output;
   result.allDays = array.length;
@@ -28,9 +43,13 @@ const calculateExercises = (array: Array<number>, target: number): Output => {
     result.ratingDescription =
       "you are doing bad, pay more attention to exercises";
   }
+  console.log(result);
   return result;
 };
 
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 1));
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2));
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 3));
+try {
+  const { daysArr, target } = parseArgs(process.argv);
+  calculateExercises(daysArr, target);
+} catch (e) {
+  console.log("something went wrong", e.message);
+}

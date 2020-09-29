@@ -13,15 +13,15 @@ interface weightHeight {
 }
 
 const parseArguments = (args: Array<string>): weightHeight => {
-  if (process.argv.length < 4) throw new Error("not enough arguements");
-  if (process.argv.length > 4) throw new Error("to many arguements");
-  if (!isNaN(Number(process.argv[2])) && !isNaN(Number(process.argv[3]))) {
+  if (args.length < 4) throw new Error("not enough arguments");
+  if (args.length > 4) throw new Error("to many arguments");
+  if (!isNaN(Number(args[2])) && !isNaN(Number(args[3]))) {
     return {
-      height: Number(process.argv[2]),
-      weight: Number(process.argv[3]),
+      height: Number(args[2]),
+      weight: Number(args[3]),
     };
   }
-  throw new Error("arguements are not numbers");
+  throw new Error("arguments are not numbers");
 };
 
 const calcuateBmi = (weight: number, height: number): Result => {
