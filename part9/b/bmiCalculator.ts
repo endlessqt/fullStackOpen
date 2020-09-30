@@ -24,33 +24,25 @@ const parseArguments = (args: Array<string>): weightHeight => {
   throw new Error("arguments are not numbers");
 };
 
-const calcuateBmi = (weight: number, height: number): Result => {
+export const calcuateBmi = (weight: number, height: number): Result => {
   const bmi = Math.round(weight / Math.pow(height / 100, 2));
   switch (true) {
     case bmi < 15:
-      console.log("very severely underweigh");
-      return;
+      return "very severely underweigh";
     case bmi <= 16:
-      console.log("severly underweight");
-      return;
+      return "severly underweight";
     case bmi <= 18.5:
-      console.log("underweight");
-      return;
+      return "underweight";
     case bmi <= 25:
-      console.log("normal(healthy weight)");
-      return;
+      return "normal(healthy weight)";
     case bmi <= 30:
-      console.log("overweight");
-      return;
+      return "overweight";
     case bmi <= 35:
-      console.log("obese class I (moderately obese)");
-      return;
+      return "obese class I (moderately obese)";
     case bmi <= 40:
-      console.log("Obese Class II(severely obese)");
-      return;
+      return "Obese Class II(severely obese)";
     case bmi > 40:
-      console.log("obese class III(vary severely obese)");
-      return;
+      return "obese class III(vary severely obese)";
     default:
       throw new Error(
         "WOW, something is incredibly wrong with you or my function"
