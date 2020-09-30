@@ -2,6 +2,7 @@ import express from "express";
 import { calcuateBmi } from "./bmiCalculator";
 
 const app = express();
+app.use(express.json());
 
 app.get("/hello", (_req, res) => {
   res.send("Hello Full Stack");
@@ -14,9 +15,7 @@ app.get("/bmi", (req, res) => {
     isNaN(Number(query.weight)) ||
     isNaN(Number(query.height))
   ) {
-    res.status(400).send({
-      error: "malformated args",
-    });
+    res.status(400).send({ error: "malformated args" });
   } else {
     const { height, weight } = query;
     res.json({
