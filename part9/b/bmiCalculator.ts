@@ -53,5 +53,6 @@ try {
   const { weight, height } = parseArguments(process.argv);
   calcuateBmi(weight, height);
 } catch (e) {
+  // eslint-disable-next-line
   console.log("Error happened", e.message);
 }

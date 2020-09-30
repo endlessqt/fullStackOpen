@@ -23,7 +23,10 @@ const parseArgs = (args: Array<string>): exercisesArgs => {
   }
   throw new Error("all arguments must to be numbers");
 };
-const calculateExercises = (array: Array<number>, target: number): Output => {
+export const calculateExercises = (
+  array: Array<number>,
+  target: number
+): Output => {
   const result = {} as Output;
   result.allDays = array.length;
   result.trainingDays = array.filter((hours) => hours !== 0).length;
@@ -51,5 +54,6 @@ try {
   const { daysArr, target } = parseArgs(process.argv);
   calculateExercises(daysArr, target);
 } catch (e) {
+  // eslint-disable-next-line
   console.log("something went wrong", e.message);
 }

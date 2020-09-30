@@ -1,6 +1,6 @@
 import express from "express";
 import { calcuateBmi } from "./bmiCalculator";
-
+import { calculateExercises } from "./exerciseCalculator";
 const app = express();
 app.use(express.json());
 
@@ -23,6 +23,24 @@ app.get("/bmi", (req, res) => {
       weight,
       bmi: calcuateBmi(Number(weight), Number(height)),
     });
+  }
+});
+app.post("/exercises", (req, res) => {
+  // eslint-disable-next-line
+  const { target, dailyExercises } = req.body;
+  if (!target || !dailyExercises) {
+    res.status(400).send({ error: "no params" });
+  } else if (
+    isNaN(Number(target)) ||
+    !Array.isArray(dailyExercises) ||
+    dailyExercises.some((val) => isNaN(val) || val === "")
+  ) {
+    res.status(400).send({ error: "malformatterd args" });
+  } else {
+    // eslint-disable-next-line
+    const arr = dailyExercises.map((val) => Number(val));
+    const result = calculateExercises(arr, target);
+    res.send(result);
   }
 });
 
