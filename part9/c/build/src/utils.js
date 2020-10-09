@@ -19,6 +19,15 @@ const parseDate = (date) => {
 const isGender = (param) => {
     return Object.values(types_1.Gender).includes(param);
 };
+const isHealthCheckRating = (param) => {
+    return Object.values(types_1.HealthCheckRating).includes(param);
+};
+const parseHealthCheckRating = (healthCheck) => {
+    if (!healthCheck || !isHealthCheckRating(healthCheck)) {
+        throw new Error("incorrect or missing healthcheckrating: " + healthCheck);
+    }
+    return healthCheck;
+};
 const parseGender = (gender) => {
     if (!gender || !isGender(gender)) {
         throw new Error("incorrect or missing gender: " + gender);
@@ -43,6 +52,35 @@ const parseOccupation = (occupation) => {
     }
     return occupation;
 };
+const parseDescription = (description) => {
+    if (!(description && isString(description))) {
+        throw new Error("incorrect description or missing: " + description);
+    }
+    return description;
+};
+const parseSpectialist = (specialist) => {
+    if (!(specialist && isString(specialist))) {
+        throw new Error("incorrect specialist or missing:" + specialist);
+    }
+    return specialist;
+};
+const isDischarge = (discharge) => {
+    return (Object.keys(discharge).includes("date") ||
+        Object.keys(discharge).includes("criteria") ||
+        Object.values(discharge).some((value) => !isString(value)));
+};
+const parseDischarge = (discharge) => {
+    if (!discharge || !isDischarge(discharge) || !isDate(discharge.date)) {
+        throw new Error("discharge is missing or incorrect: " + discharge);
+    }
+    return discharge;
+};
+const parseEmployerName = (param) => {
+    if (!param || !isString(param)) {
+        throw new Error("employer name is missing or incorrect: " + param);
+    }
+    return param;
+};
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const toNewPatient = (obj) => {
     return {
@@ -51,6 +89,49 @@ const toNewPatient = (obj) => {
         ssn: parseSsn(obj.ssn),
         occupation: parseOccupation(obj.occupation),
         gender: parseGender(obj.gender),
+        entries: [],
     };
 };
-exports.default = toNewPatient;
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+const toNewEntry = (obj) => {
+    if (!obj.type)
+        throw new Error("you must include type of entry");
+    switch (obj.type) {
+        case "Hospital":
+            return {
+                date: parseDate(obj.date),
+                description: parseDescription(obj.description),
+                specialist: parseSpectialist(obj.specialist),
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                type: obj.type,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                diagnosisCodes: obj.diagnosisCodes ? obj.diagnosisCodes : [],
+                discharge: parseDischarge(obj.discharge),
+            };
+        case "HealthCheck":
+            return {
+                date: parseDate(obj.date),
+                description: parseDescription(obj.description),
+                specialist: parseSpectialist(obj.specialist),
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                type: obj.type,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                diagnosisCodes: obj.diagnosisCodes ? obj.diagnosisCodes : [],
+                healthCheckRating: parseHealthCheckRating(obj.healthCheckRating),
+            };
+        case "OccupationalHealthcare":
+            return {
+                date: parseDate(obj.date),
+                description: parseDescription(obj.description),
+                specialist: parseSpectialist(obj.specialist),
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                type: obj.type,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                diagnosisCodes: obj.diagnosisCodes ? obj.diagnosisCodes : [],
+                employerName: parseEmployerName(obj.employerName),
+            };
+        default:
+            throw new Error("malformated entry");
+    }
+};
+exports.default = { toNewPatient, toNewEntry };
