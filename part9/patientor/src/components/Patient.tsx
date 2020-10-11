@@ -11,8 +11,20 @@ import {
   OccupationalHealthcareEntry,
 } from "../types";
 import { useStateValue } from "../state";
-import { updatePatient } from "../state/reducer";
-
+import { updatePatient, addEntry } from "../state/reducer";
+import {
+  AddHospitalEntryForm,
+  HospitalEntryValues,
+} from "./AddHospitalEntryForm";
+import {
+  AddHealthCheckEntryForm,
+  HealthCheckEntryValues,
+} from "./AddHealtchCheckEntryForm";
+import {
+  AddOccupationalHealthCareEntry,
+  OccupationalHealthcareValues,
+} from "./AddOccupationalEntryForm";
+import { Grid } from "semantic-ui-react";
 const assertNever = (value: never): never => {
   throw new Error(
     `Unhandled discriminated union member: ${JSON.stringify(value)}`
@@ -52,7 +64,7 @@ const OccupationalHealth = ({
   return (
     <div style={{ marginBottom: "5px" }}>
       <b>
-        {date} {employerName}
+        {date} EMPLOYER: {employerName}
       </b>{" "}
       <br />
       {description} <br />
@@ -95,7 +107,6 @@ const EntryDetails = (entry: Entry) => {
 
 const PatientFull = () => {
   const { id } = useParams<{ id: string }>();
-
   const [{ patients, diagnoses }, dispatch] = useStateValue();
   useEffect(() => {
     const fetchPatient = async () => {
@@ -111,7 +122,23 @@ const PatientFull = () => {
       }
     };
     fetchPatient();
-  }, [id]);
+  }, [id, patients]);
+  const submitNewEntry = async (
+    values:
+      | HospitalEntryValues
+      | HealthCheckEntryValues
+      | OccupationalHealthcareValues
+  ) => {
+    try {
+      const { data } = await axios.post<Entry>(
+        `${apiBaseUrl}/patients/${id}/entries`,
+        values
+      );
+      dispatch(addEntry(id, data));
+    } catch (error) {
+      console.log(error.response.data);
+    }
+  };
   if (!patients[id] || Object.keys(diagnoses).length === 0) return null;
   return (
     <div>
@@ -124,6 +151,18 @@ const PatientFull = () => {
         ssn: {patients[id].ssn} <br />
         occupation: {patients[id].occupation}
       </p>
+      <Grid centered>
+        <Grid.Column width={5}>
+          <AddHospitalEntryForm onSubmit={submitNewEntry} />
+        </Grid.Column>
+        <Grid.Column width={6}>
+          <AddHealthCheckEntryForm onSubmit={submitNewEntry} />
+        </Grid.Column>
+        <Grid.Column width={5}>
+          <AddOccupationalHealthCareEntry onSubmit={submitNewEntry} />
+        </Grid.Column>
+      </Grid>
+
       <h3>entries</h3>
       {patients[id].entries.map((entry) => {
         return <EntryDetails key={entry.id} {...entry} />;

@@ -23,7 +23,7 @@ const isHealthCheckRating = (param) => {
     return Object.values(types_1.HealthCheckRating).includes(param);
 };
 const parseHealthCheckRating = (healthCheck) => {
-    if (!healthCheck || !isHealthCheckRating(healthCheck)) {
+    if (!isHealthCheckRating(healthCheck)) {
         throw new Error("incorrect or missing healthcheckrating: " + healthCheck);
     }
     return healthCheck;
